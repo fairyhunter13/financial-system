@@ -150,8 +150,8 @@
 
 </div><!-- /page -->
 
-<script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
-<script src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js"></script>
+<script src="../vendor/cytoscape.min.js"></script>
+<script src="../vendor/cytoscape-fcose.js"></script>
 <script src="../js/config.js"></script>
 <script src="../js/data/markets.js"></script>
 <script src="../js/data/institutions.js"></script>
@@ -166,7 +166,7 @@
 <script src="../js/data/positions.js"></script>
 <script src="../js/graph-engine.js"></script>
 <script>
-  cytoscape.use(cytoscapeFcose);
+  if (typeof cytoscapeFcose !== "undefined") cytoscape.use(cytoscapeFcose);
 
   const cy = initGraph({
     containerId: 'cy',
