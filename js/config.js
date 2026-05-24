@@ -62,100 +62,146 @@ window.LAYOUT_CONFIG = {
   initialEnergyOnIncremental: 0.5,
 };
 
+/* Shape per category — adds visual variety without cluttering */
+const CATEGORY_SHAPES = {
+  markets:      'ellipse',
+  instruments:  'round-rectangle',
+  institutions: 'barrel',
+  concepts:     'ellipse',
+  strategies:   'round-hexagon',
+  participants: 'ellipse',
+  metrics:      'diamond',
+  events:       'round-tag',
+  currency:     'ellipse',
+};
+
 window.CYTOSCAPE_STYLE = [
   {
     selector: 'node',
     style: {
+      'shape':            'data(shape)',
       'background-color': 'data(color)',
-      'label': 'data(label)',
-      'text-valign': 'center',
-      'text-halign': 'center',
-      'color': '#ffffff',
-      'font-size': 'mapData(importance, 1, 10, 9, 14)',
-      'font-weight': '600',
-      'font-family': "'Segoe UI', system-ui, sans-serif",
-      'text-wrap': 'wrap',
-      'text-max-width': 'mapData(importance, 1, 10, 60, 100)',
-      'width':  'mapData(importance, 1, 10, 28, 88)',
-      'height': 'mapData(importance, 1, 10, 28, 88)',
-      'border-width': 2,
-      'border-color': 'data(borderColor)',
-      'border-style': 'data(borderStyle)',
+      'background-opacity': 0.92,
+      'label':            'data(label)',
+      'text-valign':      'center',
+      'text-halign':      'center',
+      'color':            '#ffffff',
+      'font-size':        'mapData(importance, 1, 10, 9, 14)',
+      'font-weight':      '600',
+      'font-family':      "'Segoe UI', system-ui, sans-serif",
+      'text-wrap':        'wrap',
+      'text-max-width':   'mapData(importance, 1, 10, 60, 100)',
+      'width':            'mapData(importance, 1, 10, 28, 88)',
+      'height':           'mapData(importance, 1, 10, 28, 88)',
+      'border-width':     2,
+      'border-color':     'data(borderColor)',
+      'border-style':     'data(borderStyle)',
       'text-outline-color': '#0f172a',
-      'text-outline-width': 1,
+      'text-outline-width': 1.5,
+      'shadow-blur':      0,
+      'shadow-color':     'data(color)',
+      'shadow-opacity':   0,
+      'shadow-offset-x':  0,
+      'shadow-offset-y':  0,
       'z-index': 10,
-      'transition-property': 'background-color, border-color, opacity, width, height',
-      'transition-duration': '0.15s',
+      'transition-property': 'background-color, border-color, opacity, shadow-blur, shadow-opacity',
+      'transition-duration':  '0.2s',
     }
   },
   {
     selector: 'node:selected',
     style: {
-      'border-width': 4,
-      'border-color': '#fbbf24',
+      'border-width':   4,
+      'border-color':   '#fbbf24',
+      'shadow-blur':    22,
+      'shadow-color':   '#fbbf24',
+      'shadow-opacity': 0.7,
       'z-index': 100,
     }
   },
   {
     selector: 'node.highlighted',
     style: {
-      'border-width': 3,
-      'border-color': '#fbbf24',
-      'opacity': 1,
+      'border-width':   3,
+      'border-color':   '#fbbf24',
+      'shadow-blur':    20,
+      'shadow-color':   'data(color)',
+      'shadow-opacity': 0.85,
+      'opacity':  1,
       'z-index': 50,
     }
   },
   {
+    selector: 'node.hovered',
+    style: {
+      'border-width':   2.5,
+      'border-color':   'data(color)',
+      'shadow-blur':    14,
+      'shadow-color':   'data(color)',
+      'shadow-opacity': 0.65,
+      'z-index': 30,
+    }
+  },
+  {
     selector: 'node.dimmed',
-    style: { 'opacity': 0.15 }
+    style: { 'opacity': 0.12 }
   },
   {
     selector: 'node.search-match',
     style: {
-      'border-width': 3,
-      'border-color': '#fbbf24',
+      'border-width':   3,
+      'border-color':   '#fbbf24',
+      'shadow-blur':    16,
+      'shadow-color':   '#fbbf24',
+      'shadow-opacity': 0.7,
       'opacity': 1,
     }
   },
   {
     selector: 'edge',
     style: {
-      'width': 'data(weight)',
-      'line-color': 'data(edgeColor)',
-      'target-arrow-color': 'data(edgeColor)',
-      'target-arrow-shape': 'triangle',
-      'arrow-scale': 0.7,
-      'curve-style': 'bezier',
-      'opacity': 0.55,
-      'label': 'data(label)',
-      'font-size': 9,
-      'color': '#94a3b8',
-      'text-opacity': 0,
+      'width':                'data(weight)',
+      'line-color':           'data(edgeColor)',
+      'target-arrow-color':   'data(edgeColor)',
+      'target-arrow-shape':   'triangle',
+      'arrow-scale':          0.65,
+      'curve-style':          'bezier',
+      'control-point-step-size': 40,
+      'opacity':              0.45,
+      'label':                'data(label)',
+      'font-size':            9,
+      'color':                '#94a3b8',
+      'text-opacity':         0,
+      'text-background-color': '#1e293b',
+      'text-background-opacity': 0.85,
+      'text-background-padding': '3px',
+      'text-background-shape': 'round-rectangle',
       'z-index': 5,
-      'transition-property': 'opacity',
-      'transition-duration': '0.15s',
+      'transition-property': 'opacity, width',
+      'transition-duration':  '0.2s',
     }
   },
   {
     selector: 'edge:selected, edge.highlighted',
     style: {
-      'opacity': 1,
+      'opacity':      1,
       'text-opacity': 1,
-      'width': 'mapData(weight, 1, 3, 2, 4)',
-      'z-index': 40,
+      'width':        'mapData(weight, 1, 3, 2.5, 5)',
+      'z-index':      40,
     }
   },
   {
     selector: 'edge.dimmed',
-    style: { 'opacity': 0.04 }
+    style: { 'opacity': 0.03 }
   },
 ];
 
 /* helper: build node data with defaults */
 window.makeNode = function(d) {
-  const cat   = window.CATEGORIES[d.category] || window.CATEGORIES.concepts;
-  const cCol  = window.COUNTRY_COLORS[d.country] || '#64748b';
+  const cat    = window.CATEGORIES[d.category] || window.CATEGORIES.concepts;
+  const cCol   = window.COUNTRY_COLORS[d.country] || '#64748b';
   const bStyle = d.country === 'BOTH' ? 'dashed' : 'solid';
+  const shape  = CATEGORY_SHAPES[d.category] || 'ellipse';
   return {
     data: {
       ...d,
@@ -163,6 +209,7 @@ window.makeNode = function(d) {
       borderColor: cCol,
       borderStyle: bStyle,
       weight:      d.importance || 5,
+      shape:       shape,
     }
   };
 };

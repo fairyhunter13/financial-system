@@ -69,6 +69,19 @@
       if (loading) loading.style.display = 'none';
       updateStats(cy);
       if (onReady) onReady(cy);
+      /* Auto-highlight a node specified via ?highlight=<id> in the URL */
+      const hlId = new URLSearchParams(window.location.search).get('highlight');
+      if (hlId) {
+        const target = cy.getElementById(hlId);
+        if (target.length) {
+          setTimeout(() => {
+            cy.animate({ center: { eles: target }, zoom: 2.5 }, { duration: 600, easing: 'ease-in-out-cubic' });
+            showInfoPanel(target, cy);
+            highlightNeighborhood(target, cy);
+          }, 150);
+        }
+      }
+      initMiniMap(cy);
     });
 
     /* ── Node click → info panel ──────────────────────────── */
@@ -92,21 +105,25 @@
       cy.fit(hood, 80);
     });
 
-    /* ── Tooltip ──────────────────────────────────────────── */
+    /* ── Tooltip + hover glow ─────────────────────────────── */
     const tooltip = document.getElementById('tooltip');
-    if (tooltip) {
-      cy.on('mouseover', 'node', function(evt) {
-        const d = evt.target.data();
-        const cat = (window.CATEGORIES[d.category] || {}).label || d.category;
-        const pos = evt.target.renderedPosition();
-        tooltip.innerHTML = `<div class="t-name">${d.label}</div><div class="t-cat">${cat} · ${d.country || ''}</div>`;
-        tooltip.style.display = 'block';
-        tooltip.style.left = (pos.x + 20) + 'px';
-        tooltip.style.top  = (pos.y - 10) + 'px';
-      });
-      cy.on('mouseout', 'node', () => { tooltip.style.display = 'none'; });
-      cy.on('pan zoom', () => { tooltip.style.display = 'none'; });
-    }
+    cy.on('mouseover', 'node', function(evt) {
+      const node = evt.target;
+      if (!node.hasClass('highlighted')) node.addClass('hovered');
+      if (!tooltip) return;
+      const d = node.data();
+      const cat = (window.CATEGORIES[d.category] || {}).label || d.category;
+      const pos = node.renderedPosition();
+      tooltip.innerHTML = `<div class="t-name">${d.label}</div><div class="t-cat">${cat} · ${d.country || ''}</div>`;
+      tooltip.style.display = 'block';
+      tooltip.style.left = (pos.x + 20) + 'px';
+      tooltip.style.top  = (pos.y - 10) + 'px';
+    });
+    cy.on('mouseout', 'node', function(evt) {
+      evt.target.removeClass('hovered');
+      if (tooltip) tooltip.style.display = 'none';
+    });
+    cy.on('pan zoom', () => { if (tooltip) tooltip.style.display = 'none'; });
 
     /* ── Zoom controls ────────────────────────────────────── */
     document.getElementById('btn-zoom-in')
@@ -314,6 +331,94 @@
     if (s('stat-edges'))  s('stat-edges').textContent  = visEdges.length;
     if (s('stat-us'))     s('stat-us').textContent     = visible.filter(n => n.data('country') === 'US').length;
     if (s('stat-id'))     s('stat-id').textContent     = visible.filter(n => n.data('country') === 'ID').length;
+  }
+
+  /* ── Mini-map ───────────────────────────────────────────── */
+  function initMiniMap(cy) {
+    const el = document.getElementById('mini-map');
+    if (!el) return;
+    el.innerHTML = '<div id="mini-map-label">Overview</div>';
+    const canvas = document.createElement('canvas');
+    el.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    let rafId;
+
+    function draw() {
+      const dpr = window.devicePixelRatio || 1;
+      const W = el.clientWidth  * dpr;
+      const H = el.clientHeight * dpr;
+      canvas.width  = W; canvas.height = H;
+      canvas.style.width  = el.clientWidth  + 'px';
+      canvas.style.height = el.clientHeight + 'px';
+
+      if (!cy.nodes().length) return;
+      const bb  = cy.nodes().boundingBox();
+      const PAD = 14 * dpr;
+      const sc  = Math.min((W - PAD*2) / (bb.w || 1), (H - PAD*2) / (bb.h || 1));
+      const ox  = PAD + ((W - PAD*2) - bb.w * sc) / 2 - bb.x1 * sc;
+      const oy  = PAD + ((H - PAD*2) - bb.h * sc) / 2 - bb.y1 * sc;
+      const m2c = (x, y) => ({ x: x * sc + ox, y: y * sc + oy });
+
+      ctx.clearRect(0, 0, W, H);
+
+      /* edges */
+      ctx.globalAlpha = 0.2;
+      cy.edges().forEach(e => {
+        if (e.style('display') === 'none') return;
+        const s = m2c(e.source().position().x, e.source().position().y);
+        const t = m2c(e.target().position().x, e.target().position().y);
+        ctx.strokeStyle = e.data('edgeColor') || '#475569';
+        ctx.lineWidth   = 0.5 * dpr;
+        ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(t.x, t.y); ctx.stroke();
+      });
+
+      /* nodes */
+      ctx.globalAlpha = 1;
+      cy.nodes().forEach(n => {
+        if (n.style('display') === 'none') return;
+        const p = m2c(n.position().x, n.position().y);
+        const r = Math.max(2 * dpr, (n.data('importance') / 10) * 4.5 * dpr);
+        ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = n.data('color'); ctx.fill();
+      });
+
+      /* viewport rect */
+      const pan = cy.pan(), zoom = cy.zoom();
+      const tl  = m2c(-pan.x / zoom,  -pan.y / zoom);
+      const vpW = (cy.width()  / zoom) * sc;
+      const vpH = (cy.height() / zoom) * sc;
+      ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 1.5 * dpr; ctx.globalAlpha = 0.9;
+      ctx.strokeRect(tl.x, tl.y, vpW, vpH);
+      ctx.fillStyle = 'rgba(56,189,248,0.07)';
+      ctx.fillRect(tl.x, tl.y, vpW, vpH);
+    }
+
+    const schedule = () => { cancelAnimationFrame(rafId); rafId = requestAnimationFrame(draw); };
+    schedule();
+    cy.on('pan zoom render', schedule);
+
+    /* click / drag to pan the main graph */
+    let dragging = false;
+    function navigate(e) {
+      const rect = canvas.getBoundingClientRect();
+      const dpr  = window.devicePixelRatio || 1;
+      const mx   = (e.clientX - rect.left) / rect.width;
+      const my   = (e.clientY - rect.top)  / rect.height;
+      const bb   = cy.nodes().boundingBox();
+      const W    = canvas.width, H = canvas.height;
+      const PAD  = 14 * dpr;
+      const sc   = Math.min((W - PAD*2) / (bb.w || 1), (H - PAD*2) / (bb.h || 1));
+      const ox   = PAD + ((W - PAD*2) - bb.w * sc) / 2 - bb.x1 * sc;
+      const oy   = PAD + ((H - PAD*2) - bb.h * sc) / 2 - bb.y1 * sc;
+      const moX  = (mx * W - ox) / sc;
+      const moY  = (my * H - oy) / sc;
+      cy.pan({ x: -moX * cy.zoom() + cy.width() / 2, y: -moY * cy.zoom() + cy.height() / 2 });
+    }
+    canvas.addEventListener('mousedown',  e => { dragging = true;  navigate(e); });
+    window.addEventListener('mousemove',  e => { if (dragging) navigate(e); });
+    window.addEventListener('mouseup',    () => { dragging = false; });
+    canvas.addEventListener('touchstart', e => navigate(e.touches[0]), { passive: true });
+    canvas.addEventListener('touchmove',  e => navigate(e.touches[0]), { passive: true });
   }
 
   /* ── Populate sidebar category filters ─────────────────── */
