@@ -44,11 +44,16 @@
     const infoPanel = document.getElementById('info-panel');
     const infoClose = document.getElementById('info-close');
 
+    const prePos = window.PRECOMPUTED_POSITIONS;
+    const initialLayout = prePos
+      ? { name: 'preset', positions: n => prePos[n.id()], fit: true, padding: 60 }
+      : window.LAYOUT_CONFIG;
+
     const cy = cytoscape({
       container: document.getElementById(containerId),
       elements: [...nodes, ...edges],
       style: window.CYTOSCAPE_STYLE,
-      layout: window.LAYOUT_CONFIG,
+      layout: initialLayout,
       minZoom: 0.05,
       maxZoom: 4,
       wheelSensitivity: 0.3,

@@ -1,0 +1,13 @@
+{
+  "name": "financial-system-scripts",
+  "version": "1.0.0",
+  "description": "Build scripts for financial knowledge graph",
+  "private": true,
+  "scripts": {
+    "precompute": "node precompute.js"
+  },
+  "dependencies": {
+    "cytoscape": "^3.30.2",
+    "cytoscape-fcose": "^2.2.0"
+  }
+}
