@@ -49,7 +49,8 @@
     const posMap = window.PRECOMPUTED_POSITIONS && window.PRECOMPUTED_POSITIONS[positionsKey];
     const usePreset = !!posMap;
     const initialLayout = usePreset
-      ? { name: 'preset', positions: n => posMap[n.id()], fit: true, padding: 60 }
+      /* fit:false preserves the raw fcose coordinate scale; we fit manually after */
+      ? { name: 'preset', positions: n => posMap[n.id()], fit: false }
       : window.LAYOUT_CONFIG;
 
     /* Hide loading overlay immediately when positions are precomputed */
@@ -67,8 +68,16 @@
 
     cy.on('layoutstop', () => {
       if (loading) loading.style.display = 'none';
+
+      /* Fit the full graph into view with comfortable padding, then let users
+         zoom/pan freely — like a world map starting at "earth" zoom level */
+      if (usePreset) {
+        cy.fit(cy.nodes(), 80);
+      }
+
       updateStats(cy);
       if (onReady) onReady(cy);
+
       /* Auto-highlight a node specified via ?highlight=<id> in the URL */
       const hlId = new URLSearchParams(window.location.search).get('highlight');
       if (hlId) {

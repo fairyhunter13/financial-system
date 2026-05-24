@@ -79,18 +79,18 @@ const LAYOUT_OPTS = {
   quality: 'proof',
   randomize: true,
   animate:   false,
-  fit:       true,
-  padding:   60,
-  nodeDimensionsIncludeLabels: false,
+  fit:       false,      // keep raw coordinate scale; browser does its own fit
+  padding:   120,
+  nodeDimensionsIncludeLabels: true,   // account for label footprint
   uniformNodeDimensions:       false,
   packComponents:              true,
-  nodeRepulsion:      6500,
-  idealEdgeLength:    90,
-  edgeElasticity:     0.45,
+  nodeRepulsion:      80000,   // 12× — push overlapping nodes apart
+  idealEdgeLength:    220,     // 2.4× — enough gap even between large nodes
+  edgeElasticity:     0.30,
   nestingFactor:      0.1,
-  numIter:            2500,
-  gravity:            0.25,
-  gravityRange:       3.8,
+  numIter:            6000,    // more iterations for quality at higher repulsion
+  gravity:            0.05,    // much less central pull → clusters can drift
+  gravityRange:       1.8,
   initialEnergyOnIncremental: 0.5,
 };
 
