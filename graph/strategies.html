@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strategies &amp; Metrics — Financial Knowledge Graph 2026</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<nav id="topnav">
+  <div class="logo">💹 FinanceGraph 2026</div>
+  <nav>
+    <a href="../index.html"><span class="dot" style="background:#38bdf8"></span> <span>Home</span></a>
+    <a href="full.html"><span class="dot" style="background:#a855f7"></span> <span>Full Graph</span></a>
+    <a href="us.html"><span class="dot" style="background:#3b82f6"></span> <span>🇺🇸 US Markets</span></a>
+    <a href="indonesia.html"><span class="dot" style="background:#ef4444"></span> <span>🇮🇩 Indonesia</span></a>
+    <a href="instruments.html"><span class="dot" style="background:#22c55e"></span> <span>Instruments</span></a>
+    <a href="strategies.html" class="active"><span class="dot" style="background:#06b6d4"></span> <span>Strategies</span></a>
+    <a href="events.html"><span class="dot" style="background:#ef4444"></span> <span>Events</span></a>
+  </nav>
+</nav>
+
+<div id="page">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────── -->
+  <aside id="sidebar">
+    <div id="sidebar-scroll">
+
+      <div class="sidebar-section">
+        <h3>🎯 Strategies &amp; Metrics</h3>
+        <p style="font-size:11px;color:var(--text-muted);line-height:1.6;margin-top:4px">
+          18 investment strategies (value, growth, DCA, dividend, ESG, momentum…) connected to 15 evaluation metrics (P/E, Beta, Sharpe, Alpha…) and the instruments they operate on.
+        </p>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Search</h3>
+        <input id="search-box" class="input" type="text" placeholder="Search strategies &amp; metrics…" autocomplete="off">
+        <div id="search-results"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Country</h3>
+        <div class="country-row">
+          <button class="country-btn active-all" data-country="ALL">All</button>
+          <button class="country-btn" data-country="US">🇺🇸 US</button>
+          <button class="country-btn" data-country="ID">🇮🇩 ID</button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Categories</h3>
+        <div id="cat-filters"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Stats</h3>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-nodes">—</div>
+            <div class="stat-label">Nodes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-edges">—</div>
+            <div class="stat-label">Edges</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-us">—</div>
+            <div class="stat-label">🇺🇸 US</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-id">—</div>
+            <div class="stat-label">🇮🇩 ID</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Key Strategies</h3>
+        <div style="display:grid;gap:4px;font-size:11px;color:var(--text-3)">
+          <div>📊 Value Investing — buy undervalued assets</div>
+          <div>🚀 Growth Investing — high-growth companies</div>
+          <div>📅 DCA — regular fixed-amount investing</div>
+          <div>💰 Dividend Investing — income from dividends</div>
+          <div>🌿 ESG — ethical &amp; sustainable investing</div>
+          <div>📈 Index Investing — market-cap weighted</div>
+          <div>⚖️ Hedging — reducing portfolio risk</div>
+          <div>🔄 Portfolio Rebalancing — maintain target allocation</div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Legend</h3>
+        <div class="legend-grid" id="legend"></div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ── Graph area ───────────────────────────────────────────── -->
+  <div id="cy-wrap">
+    <div id="cy"></div>
+    <div id="tooltip"></div>
+
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>Building strategies &amp; metrics graph…</p>
+    </div>
+
+    <div id="zoom-ctrl">
+      <button id="btn-zoom-in"  class="zoom-btn" title="Zoom in">+</button>
+      <button id="btn-zoom-out" class="zoom-btn" title="Zoom out">−</button>
+      <button id="btn-fit"      class="zoom-btn" title="Fit all">⊡</button>
+      <button id="btn-layout"   class="zoom-btn" title="Re-run layout">⟳</button>
+    </div>
+
+    <div id="info-panel">
+      <div id="info-header">
+        <div class="left">
+          <div id="info-name"></div>
+          <div id="info-badges"></div>
+        </div>
+        <button id="info-close">✕</button>
+      </div>
+      <div id="info-body">
+        <div class="info-sec">
+          <h4>Description</h4>
+          <div id="info-desc"></div>
+        </div>
+        <div class="info-sec">
+          <h4>Metadata</h4>
+          <div class="meta-grid" id="info-metadata"></div>
+        </div>
+        <div class="info-sec">
+          <h4>Related Nodes</h4>
+          <div class="chips" id="info-related"></div>
+        </div>
+        <div class="info-sec">
+          <h4>Learn More</h4>
+          <div class="links-list" id="info-links"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+<script src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js"></script>
+<script src="../js/config.js"></script>
+<script src="../js/data/markets.js"></script>
+<script src="../js/data/institutions.js"></script>
+<script src="../js/data/instruments.js"></script>
+<script src="../js/data/concepts.js"></script>
+<script src="../js/data/strategies.js"></script>
+<script src="../js/data/participants.js"></script>
+<script src="../js/data/metrics.js"></script>
+<script src="../js/data/events.js"></script>
+<script src="../js/data/currency.js"></script>
+<script src="../js/data/edges.js"></script>
+<script src="../js/graph-engine.js"></script>
+<script>
+  cytoscape.use(cytoscapeFcose);
+
+  const cy = initGraph({
+    containerId: 'cy',
+    nodeFilter: function(d) {
+      return ['strategies', 'metrics', 'instruments', 'concepts', 'participants'].includes(d.category);
+    },
+    onReady: function(c) {
+      populateFilters(c);
+      buildLegend(c);
+    }
+  });
+
+  function buildLegend(c) {
+    const el = document.getElementById('legend');
+    if (!el) return;
+    const seen = new Set();
+    c.nodes().forEach(n => seen.add(n.data('category')));
+    el.innerHTML = Object.entries(window.CATEGORIES)
+      .filter(([k]) => seen.has(k))
+      .map(([, v]) =>
+        `<div class="legend-row">
+           <span class="legend-dot" style="background:${v.color}"></span>
+           ${v.label}
+         </div>`)
+      .join('');
+  }
+</script>
+</body>
+</html>
