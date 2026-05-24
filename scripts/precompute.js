@@ -77,7 +77,7 @@ const VIEWS = [
 const LAYOUT_OPTS = {
   name:    'fcose',
   quality: 'proof',
-  randomize: false,
+  randomize: true,
   animate:   false,
   fit:       true,
   padding:   60,
