@@ -166,6 +166,7 @@
 
   const cy = initGraph({
     containerId: 'cy',
+    positionsKey: 'strategies',
     nodeFilter: function(d) {
       return ['strategies', 'metrics', 'instruments', 'concepts', 'participants'].includes(d.category);
     },

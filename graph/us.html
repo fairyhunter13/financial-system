@@ -170,6 +170,7 @@
 
   const cy = initGraph({
     containerId: 'cy',
+    positionsKey: 'us',
     nodeFilter: function(d) {
       return d.country === 'US' || d.country === 'BOTH';
     },

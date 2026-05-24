@@ -31,8 +31,9 @@
   /* ── Init ───────────────────────────────────────────────── */
   window.initGraph = function(opts = {}) {
     const {
-      containerId = 'cy',
+      containerId  = 'cy',
       nodeFilter   = null,
+      positionsKey = 'full',
       onReady      = null,
     } = opts;
 
@@ -44,10 +45,15 @@
     const infoPanel = document.getElementById('info-panel');
     const infoClose = document.getElementById('info-close');
 
-    const prePos = window.PRECOMPUTED_POSITIONS;
-    const initialLayout = prePos
-      ? { name: 'preset', positions: n => prePos[n.id()], fit: true, padding: 60 }
+    /* Use per-view precomputed positions when available */
+    const posMap = window.PRECOMPUTED_POSITIONS && window.PRECOMPUTED_POSITIONS[positionsKey];
+    const usePreset = !!posMap;
+    const initialLayout = usePreset
+      ? { name: 'preset', positions: n => posMap[n.id()], fit: true, padding: 60 }
       : window.LAYOUT_CONFIG;
+
+    /* Hide loading overlay immediately when positions are precomputed */
+    if (usePreset && loading) loading.style.display = 'none';
 
     const cy = cytoscape({
       container: document.getElementById(containerId),

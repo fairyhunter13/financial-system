@@ -163,6 +163,7 @@
 
   const cy = initGraph({
     containerId: 'cy',
+    positionsKey: 'instruments',
     nodeFilter: function(d) {
       return ['instruments', 'markets', 'concepts', 'currency', 'institutions'].includes(d.category);
     },
