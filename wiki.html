@@ -862,6 +862,10 @@
     .hl-red { color: #f87171; font-weight: 700; }
     .hl-amber { color: #fbbf24; font-weight: 700; }
 
+    /* ── Jargon tooltip — wrap any term with <abbr class="jargon" title="..."> */
+    abbr.jargon { text-decoration: underline dotted rgba(56,189,248,.5); cursor: help; color: inherit; }
+    abbr.jargon:hover { text-decoration-color: var(--accent); }
+
     /* ── Section divider ───────────────────────────────────── */
     .v-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 22px 0; }
 
@@ -1829,7 +1833,11 @@ showEntry = function(id) {
   // Mark as read
   buildMarkAsRead(id);
   // Interactive simulations — run after a tick so DOM is ready
-  setTimeout(function() { wSimInitAll(); }, 10);
+  setTimeout(function() {
+    wSimInitAll();
+    var art = document.getElementById('article-content');
+    if (art) _wApplyJargon(art);
+  }, 10);
 };
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1850,6 +1858,140 @@ var _wSimFmt = {
   yr:  function(n) { return n.toFixed(1) + ' yrs'; }
 };
 
+/* ── Plain-English slider label map ───────────────────────────
+   Technical terms → simple descriptions applied on sim init.
+   Entries key on the raw label text (trimmed, no trailing space). */
+var _wLabelMap = {
+  /* Bond / rates */
+  'Coupon Rate %':              'Bond\'s Interest Rate %',
+  'Market Yield %':             'Current Market Rate %',
+  'Years to Maturity':          'Bond Life Remaining (Yrs)',
+  'Duration (years)':           'Rate Sensitivity (Yrs)',
+  'Yield Change (bps)':         'Rate Change (100 bps = 1%)',
+  'Current Yield (%)':          'Current Interest Rate %',
+  'Bond Duration (years)':      'Bond Sensitivity to Rates',
+  'Current US 10Y Yield (%)':   'US 10-Yr Bond Rate %',
+  /* Stock / earnings */
+  'EPS (Rp)':                   'Company Profit per Share (Rp)',
+  'Current EPS (Rp)':           'Company Profit per Share (Rp)',
+  'EPS Growth %/yr':            'Profit Growth per Year %',
+  'Expected EPS Growth % /yr':  'Expected Profit Growth % /yr',
+  'Annual EPS Growth %':        'Yearly Profit Growth %',
+  'P/E Multiple':               'Price-to-Earnings (P/E)',
+  'P/E Multiple Applied':       'P/E Ratio Applied',
+  'P/E Multiple of Underlying Index': 'Index P/E Ratio',
+  'P/E ratio target':           'Target P/E Ratio',
+  /* Risk / returns */
+  'Beta':                       'Market Movement Sensitivity',
+  'Portfolio Beta':             'Portfolio Market Sensitivity',
+  'REIT Portfolio Beta':        'REIT Market Sensitivity',
+  'Dividend Portfolio Beta':    'Dividend Portfolio Sensitivity',
+  'Growth Portfolio Beta':      'Growth Portfolio Sensitivity',
+  'Index Fund Beta':            'Index Fund Sensitivity',
+  'Long-Term Portfolio Beta':   'Long-Term Sensitivity',
+  'Implied Volatility %':       'Market Uncertainty Level %',
+  'Volatility (Std Dev) %':     'Price Swings %',
+  'Annual Volatility %':        'Yearly Price Swings %',
+  'Annual Volatility (%)':      'Yearly Price Swings %',
+  'Annualized Volatility (%)':  'Yearly Price Swings %',
+  'Blended Portfolio Volatility %': 'Portfolio Risk %',
+  'Strategy Volatility %':      'Strategy Risk %',
+  'Monthly Reinvestment Volatility %': 'Monthly Reinvestment Risk %',
+  'Margin of Safety %':         'Safety Discount from Fair Value %',
+  /* Interest rates */
+  'Risk-Free Rate %':           'Safe Investment Rate (e.g. SBN) %',
+  'Risk-Free Rate (ORI) %':     'Safe Rate (ORI) %',
+  'Nominal Rate (%)':           'Listed Interest Rate %',
+  'Expected Annual Return %':   'Expected Yearly Profit %',
+  'Expected Annual Return (%)': 'Expected Yearly Profit %',
+  'Expected Market Return %':   'Expected Market Profit %',
+  'Annual Return %':            'Yearly Profit %',
+  'Annual Return (%)':          'Yearly Profit %',
+  'Annual Rate (%)':            'Yearly Interest Rate %',
+  'Annual Interest Rate (%)':   'Yearly Interest Rate %',
+  /* Dividends */
+  'Starting Dividend Yield %':  'Starting Income Rate %',
+  'Annual Dividend Growth %':   'Yearly Income Growth %',
+  'Current Dividend/Share (Rp)':'Dividend per Share (Rp)',
+  /* Time */
+  'Years to Maturity':          'Bond Life Remaining (Yrs)',
+  'Investment Years':           'How Many Years',
+  'Investment Period (years)':  'How Long (Years)',
+  'Days to Expiry':             'Days Until Option Expires',
+  /* Options */
+  'Strike Price (Rp)':          'Option Exercise Price (Rp)',
+  /* Allocation */
+  'Equity Allocation %':        '% Put in Stocks',
+  'Equity Allocation Target %': 'Target % in Stocks',
+  'Alokasi saham (%)':          '% Portofolio di Saham',
+  'Alokasi obligasi (%)':       '% Portofolio di Obligasi',
+};
+
+function _wSimplifyLabels(sim) {
+  sim.querySelectorAll('.v-sim-control label').forEach(function(lbl) {
+    var sp = lbl.querySelector('span');
+    if (!sp) return;
+    var spOuter = sp.outerHTML;
+    // raw label text without span HTML
+    var raw = lbl.innerHTML.replace(spOuter, '').trim();
+    var plain = _wLabelMap[raw];
+    if (plain) lbl.innerHTML = plain + ' ' + spOuter;
+  });
+}
+
+/* ── Jargon glossary — hover tooltips on complex terms ────────
+   Applied once when an article opens; wraps jargon terms in
+   <abbr class="jargon" title="plain explanation"> so hovering
+   shows a plain-English tooltip. Only runs on text nodes inside
+   .v-fact-value, .v-fact-label, .v-tl-title, .v-news-headline. */
+var _wJargon = {
+  'YTM':           'Yield to Maturity — the true annual return if you hold the bond until it matures',
+  'bps':           'basis points — 100 bps = 1%. So 25 bps = 0.25%',
+  'EPS':           'Earnings per Share — how much profit the company made per share you own',
+  'P/E':           'Price-to-Earnings — how many years of profit you\'re paying for in the stock price',
+  'ROE':           'Return on Equity — how much profit a company makes from shareholders\' money',
+  'NAV':           'Net Asset Value — the price of one fund unit, calculated daily',
+  'DCA':           'Dollar-Cost Averaging — investing a fixed amount regularly regardless of price',
+  'ETF':           'Exchange-Traded Fund — a basket of stocks/bonds traded like a single share',
+  'IPO':           'Initial Public Offering — when a company first sells shares to the public',
+  'FFO':           'Funds From Operations — real cash profit for REITs, excluding paper depreciation',
+  'ITM':           'In the Money — option is currently profitable to exercise',
+  'ATM':           'At the Money — option exercise price equals the current stock price',
+  'OTM':           'Out of the Money — option is currently not profitable to exercise',
+  'IV':            'Implied Volatility — market\'s estimate of future price swings',
+  'IHSG':          'Indeks Harga Saham Gabungan — Indonesia\'s main stock market index (like S&P 500)',
+  'IDX':           'Indonesia Stock Exchange — the marketplace where Indonesian stocks are traded',
+  'OJK':           'Otoritas Jasa Keuangan — Indonesia\'s financial regulator (like the SEC)',
+  'LPS':           'Lembaga Penjamin Simpanan — Indonesia\'s deposit insurance (like FDIC)',
+  'SBN':           'Surat Berharga Negara — Indonesian government bonds (very safe investments)',
+  'ORI':           'Obligasi Ritel Indonesia — government retail bonds sold directly to individuals',
+  'BI Rate':       'Bank Indonesia Rate — Indonesia\'s central bank interest rate, affects all loans & savings',
+  'Fed Rate':      'Federal Reserve Rate — US central bank rate, affects global interest rates',
+  'QE':            'Quantitative Easing — central bank creates money to buy bonds, stimulating economy',
+  'QT':            'Quantitative Tightening — central bank shrinks money supply by selling bonds',
+  'CPI':           'Consumer Price Index — measures inflation by tracking prices of everyday goods',
+  'GDP':           'Gross Domestic Product — total value of everything a country produces in a year',
+  'REIT':          'Real Estate Investment Trust — a company that owns properties and pays rent as dividends',
+  'DIRE':          'Dana Investasi Real Estat — Indonesian REIT equivalent',
+  'Alpha':         'Extra return a fund manager earned above what the market delivered',
+  'Beta':          'How much a stock moves vs the market. Beta 1.5 = stock moves 50% more than market',
+  'Sharpe':        'Sharpe Ratio — profit earned per unit of risk. Higher = better risk-adjusted return',
+  'CAPM':          'Capital Asset Pricing Model — formula to estimate expected return based on risk',
+  'Duration':      'Bond Duration — measures how much the bond price changes when interest rates change',
+};
+
+function _wApplyJargon(container) {
+  var sel = '.v-fact-label,.v-fact-value,.v-tl-title,.v-news-headline,.v-ind-label,.v-ind-value';
+  container.querySelectorAll(sel).forEach(function(el) {
+    if (el.querySelector('abbr')) return; // already processed
+    Object.keys(_wJargon).forEach(function(term) {
+      var re = new RegExp('\\b(' + term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')\\b','g');
+      el.innerHTML = el.innerHTML.replace(re,
+        '<abbr class="jargon" title="' + _wJargon[term].replace(/"/g,"'") + '">$1</abbr>');
+    });
+  });
+}
+
 function wSimUpdate(el) {
   // Update the label value display
   var lbl = el.previousElementSibling;
@@ -1866,6 +2008,7 @@ function wSimInitAll() {
   var sims = document.querySelectorAll('#article-content .v-sim[data-type]:not([data-inited])');
   sims.forEach(function(sim) {
     sim.setAttribute('data-inited', '1');
+    _wSimplifyLabels(sim);   // replace jargon slider labels with plain English
     // init slider displays
     sim.querySelectorAll('input[type=range]').forEach(function(inp) {
       var lbl = inp.previousElementSibling;
