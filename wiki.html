@@ -842,9 +842,13 @@
     .v-sim-metric-val { font-size: 20px; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 4px; }
     .v-sim-metric-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .1em; }
     .v-sim-canvas { display: block; width: 100%; border-radius: 6px; background: rgba(0,0,0,.15); }
-    /* Plain-language formula note */
-    .v-formula-note { font-size: 11px; color: var(--text-2); text-align: center; padding: 4px 16px 8px; line-height: 1.65; }
-    .v-formula-note strong { color: var(--accent); }
+    /* Plain-language formula note — now a prominent green explanation card */
+    .v-formula-note { background: linear-gradient(135deg, rgba(34,197,94,.09), rgba(16,185,129,.04)); border: 1px solid rgba(34,197,94,.28); border-radius: 10px; padding: 13px 16px; margin: 0 0 8px; font-size: 13px; color: var(--text-2); line-height: 1.8; }
+    .v-formula-note strong { color: #4ade80; font-weight: 700; }
+    /* Collapsible "show the math" toggle for formulas */
+    .v-formula-toggle { margin: 8px 0 16px; }
+    .v-formula-show-btn { background: none; border: 1px dashed rgba(129,140,248,.35); border-radius: 6px; color: #a5b4fc; font-size: 11px; font-weight: 600; padding: 4px 14px; cursor: pointer; letter-spacing: .03em; transition: all .18s; font-family: inherit; display: inline-flex; align-items: center; gap: 5px; }
+    .v-formula-show-btn:hover { background: rgba(129,140,248,.08); border-color: rgba(129,140,248,.55); color: #c7d2fe; }
 
     /* ── Pull Quote ────────────────────────────────────────── */
     .v-quote { border-left: 3px solid var(--accent); padding: 10px 16px; margin: 16px 0; background: rgba(56,189,248,.03); border-radius: 0 8px 8px 0; }
@@ -1836,7 +1840,10 @@ showEntry = function(id) {
   setTimeout(function() {
     wSimInitAll();
     var art = document.getElementById('article-content');
-    if (art) _wApplyJargon(art);
+    if (art) {
+      _wEnhanceFormulas(art); // move plain-English note before formula, make formula collapsible
+      _wApplyJargon(art);
+    }
   }, 10);
 };
 
@@ -1979,6 +1986,35 @@ var _wJargon = {
   'CAPM':          'Capital Asset Pricing Model — formula to estimate expected return based on risk',
   'Duration':      'Bond Duration — measures how much the bond price changes when interest rates change',
 };
+
+/* ── Formula enhancer ─────────────────────────────────────────
+   Moves plain-English note BEFORE the formula, then wraps the
+   formula itself in a "Show the math →" collapsible toggle.
+   Result: explanation is prominent; algebra is optional.         */
+function _wEnhanceFormulas(container) {
+  container.querySelectorAll('.v-formula').forEach(function(f) {
+    var note = f.nextElementSibling;
+    if (!note || !note.classList.contains('v-formula-note')) return;
+    var parent = f.parentNode;
+    // Move note before the formula
+    parent.insertBefore(note, f);
+    // Wrap formula in a toggle container
+    var wrap = document.createElement('div');
+    wrap.className = 'v-formula-toggle';
+    var btn = document.createElement('button');
+    btn.className = 'v-formula-show-btn';
+    btn.innerHTML = '🔢 Show the math &darr;';
+    btn.onclick = function() {
+      var hidden = f.style.display === 'none';
+      f.style.display = hidden ? '' : 'none';
+      btn.innerHTML = hidden ? '🔢 Hide the math &uarr;' : '🔢 Show the math &darr;';
+    };
+    parent.insertBefore(wrap, f);
+    wrap.appendChild(btn);
+    wrap.appendChild(f);
+    f.style.display = 'none'; // hidden by default — explanation shows first
+  });
+}
 
 function _wApplyJargon(container) {
   var sel = '.v-fact-label,.v-fact-value,.v-tl-title,.v-news-headline,.v-ind-label,.v-ind-value';
