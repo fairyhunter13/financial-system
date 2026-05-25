@@ -1900,11 +1900,18 @@ function wSimGrid(ctx, cols, maxVal, padL, padR, padT, padB) {
   }
 }
 
+// Scale-aware Rp converter: if value > 10000 treat as raw Rp, else as juta (× 1e6)
+function _wRp(v, def) {
+  var n = parseFloat(v != null && v !== '' ? v : def);
+  if (isNaN(n)) n = def;
+  return n > 10000 ? n : n * 1e6;
+}
+
 /* ── Compound Interest Simulation ─────────────────────────── */
 function wSimCompound(canvas, metrics, inp) {
-  var p = (inp.p || 10) * 1e6;
-  var r = (inp.r || 10) / 100;
-  var y = inp.y || 20;
+  var p = _wRp(inp.p != null ? inp.p : inp.principal, 10);
+  var r = parseFloat(inp.r || inp.rate || 10) / 100;
+  var y = parseInt(inp.y || inp.years || 20);
   var years = [], compound = [], simple = [];
   var maxVal = 0;
   for (var i = 0; i <= y; i++) {
@@ -1968,9 +1975,9 @@ function wSimCompound(canvas, metrics, inp) {
 
 /* ── Inflation Erosion Simulation ─────────────────────────── */
 function wSimInflation(canvas, metrics, inp) {
-  var p = (inp.p || 100) * 1e6;
-  var r = (inp.r || 3) / 100;
-  var y = inp.y || 20;
+  var p = _wRp(inp.p != null ? inp.p : inp.principal, 100);
+  var r = parseFloat(inp.r || inp.rate || 3) / 100;
+  var y = parseInt(inp.y || inp.years || 20);
   var years = [], vals = [];
   for (var i = 0; i <= y; i++) {
     vals.push(p * Math.pow(1-r, i));
@@ -2012,8 +2019,8 @@ function wSimInflation(canvas, metrics, inp) {
 
 /* ── Rule of 72 Simulation ────────────────────────────────── */
 function wSimRule72(canvas, metrics, inp) {
-  var p = (inp.p || 10) * 1e6;
-  var r = inp.r || 8;
+  var p = _wRp(inp.p != null ? inp.p : inp.principal, 10);
+  var r = parseFloat(inp.r || inp.rate || 8);
   var doublings = Math.min(Math.ceil(40 / (72/r)), 8);
   var vals = [];
   for (var i = 0; i <= doublings; i++) vals.push(p * Math.pow(2,i));
@@ -2053,9 +2060,9 @@ function wSimRule72(canvas, metrics, inp) {
 
 /* ── DCA Simulation ───────────────────────────────────────── */
 function wSimDCA(canvas, metrics, inp) {
-  var monthly = (inp.m || 1) * 1e6;
-  var r = (inp.r || 10) / 100 / 12;
-  var months = (inp.y || 20) * 12;
+  var monthly = _wRp(inp.m != null ? inp.m : inp.monthly, 1);
+  var r = parseFloat(inp.r || inp.rate || 10) / 100 / 12;
+  var months = parseInt(inp.y || inp.years || 20) * 12;
   var totalInvested = monthly * months;
   var fv = monthly * (Math.pow(1+r, months) - 1) / r;
   var gain = fv - totalInvested;
@@ -2119,9 +2126,9 @@ function wSimDCA(canvas, metrics, inp) {
 
 /* ── Loan Cost Simulation ─────────────────────────────────── */
 function wSimLoan(canvas, metrics, inp) {
-  var principal = (inp.p || 500) * 1e6;
-  var rate = (inp.r || 5.25) / 100 / 12;
-  var months = (inp.y || 20) * 12;
+  var principal = _wRp(inp.p != null ? inp.p : inp.principal, 500);
+  var rate = parseFloat(inp.r || inp.rate || 5.25) / 100 / 12;
+  var months = parseInt(inp.y || inp.years || 20) * 12;
   var monthly = principal * rate * Math.pow(1+rate,months) / (Math.pow(1+rate,months)-1);
   var totalPaid = monthly * months;
   var totalInterest = totalPaid - principal;
@@ -2274,12 +2281,23 @@ function wSimBondPrice(canvas, metrics, inp) {
   });
   ctx.stroke();
 
-  // Current yield dot
+  // Current yield crosshair + label
   var curIdx = (baseYield-yMin)/(yMax-yMin)*nPts;
   var cx2 = padL+curIdx/nPts*cw, cy = padT+ch-(curPx-pMin)/(pMax-pMin)*ch;
-  ctx.beginPath(); ctx.arc(cx2,cy,5,0,2*Math.PI);
+  ctx.save();
+  ctx.setLineDash([3,3]); ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(cx2,padT); ctx.lineTo(cx2,padT+ch); ctx.stroke();
+  ctx.strokeStyle='rgba(245,158,11,.4)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(padL,cy); ctx.lineTo(padL+cw,cy); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+  ctx.beginPath(); ctx.arc(cx2,cy,4,0,2*Math.PI);
   ctx.fillStyle='#f59e0b'; ctx.fill();
-  ctx.strokeStyle='#fff'; ctx.lineWidth=1; ctx.stroke();
+  ctx.strokeStyle='#1e293b'; ctx.lineWidth=1.5; ctx.stroke();
+  var lblX = cx2 > padL+cw*0.65 ? cx2-4 : cx2;
+  ctx.font='bold 9px system-ui'; ctx.textAlign= cx2 > padL+cw*0.65 ? 'right' : 'center';
+  ctx.fillStyle='#f59e0b';
+  ctx.fillText('Current '+baseYield.toFixed(1)+'%', lblX, padT+11);
 
   // Par value line
   var parY = padT+ch-(face-pMin)/(pMax-pMin)*ch;
@@ -2344,7 +2362,7 @@ function wSimPE(canvas, metrics, inp) {
 /* ── Dividend Growth Simulator ────────────────────────────── */
 function wSimDivGrowth(canvas, metrics, inp) {
   // keys: principal/lots (initial Rp juta invested), yield/div (initial yield%), growth (annual div growth%), years
-  var principal = parseFloat(inp.principal || inp.lots || 100) * 1e6;  // in Rp
+  var principal = _wRp(inp.principal != null ? inp.principal : inp.lots, 100);  // in Rp
   var yieldPct  = parseFloat(inp.yield || inp.div || 5);
   var growPct   = parseFloat(inp.growth || 8);
   var years     = parseInt(inp.years || 20);
@@ -2550,8 +2568,8 @@ function wSimFXCarry(canvas, metrics, inp) {
 /* ── Savings / Investment Goal Planner ────────────────────── */
 function wSimSavings(canvas, metrics, inp) {
   // keys: principal (initial Rp juta), monthly/m (monthly Rp juta), rate/r (annual %), years/y
-  var principal = parseFloat(inp.principal || 0) * 1e6;
-  var monthly   = parseFloat(inp.monthly || inp.m || 1) * 1e6;
+  var principal = _wRp(inp.principal != null ? inp.principal : inp.p, 0);
+  var monthly   = _wRp(inp.monthly != null ? inp.monthly : inp.m, 1);
   var annualRate = parseFloat(inp.rate || inp.r || 7);
   var years     = parseInt(inp.years || inp.y || 20);
   var mRate     = annualRate/100/12;
