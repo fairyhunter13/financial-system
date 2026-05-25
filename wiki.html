@@ -1903,6 +1903,30 @@ var _wSectionTitleMap = {
   /* instruments.js */
   'Equity vs Debt Instruments':
       'Stocks (Ownership Slice) vs Bonds (IOU Loan) — What\'s the Difference?',
+  'Duration Sensitivity Table':
+      'How Much Does Bond Price Drop When Rates Rise? (By Time-to-Maturity)',
+  'Indonesian ETF Landscape (2026)':
+      'ETF Options Available in Indonesia (2026)',
+  'REIT vs BI Rate: The Yield Spread Trade':
+      'When REIT Dividends Beat the Bank Rate — and When They Don\'t',
+  /* fundamentals.js */
+  'Mekanisme Transmisi: Bagaimana BI Melawan Inflasi':
+      'Cara BI Menurunkan Inflasi: Dari Kenaikan Suku Bunga ke Harga Sehari-Hari',
+  'Biaya Likuiditas: Bid-Ask Spread':
+      'Biaya Tersembunyi Saat Beli-Jual: Selisih Harga Beli dan Jual',
+  'Opportunity Cost Landscape: Mei 2026':
+      'Pilihan Investasi Terbaik Mei 2026: Mana yang Paling Menguntungkan?',
+  /* macro.js */
+  'Interest Rate Spectrum — Global Landscape':
+      'Interest Rates Around the World — Who Charges the Most?',
+  'Interactive: BI Rate vs Fed Rate Carry Trade':
+      'Interactive: When Indonesian Rates Beat US Rates (Profit the Difference)',
+  'What is Quantitative Easing?':
+      'What is QE (Quantitative Easing)? — When the Central Bank Prints Money to Stimulate Growth',
+  'Monetary Policy Decision Framework':
+      'How Central Banks Decide: Raise, Cut, or Hold?',
+  'Indonesia Primary Balance':
+      'Indonesia\'s Budget Health (Spending vs Income Before Debt Costs)',
 };
 function _wSimplifyTitles(container) {
   container.querySelectorAll('.v-section-title').forEach(function(el) {
@@ -2087,6 +2111,18 @@ var _wJargon = {
   'Underwriting':  'When a bank guarantees to buy all unsold shares in an IPO — the bank takes the risk if investors don\'t buy everything',
   'Free-float':    'The percentage of a company\'s shares available for public trading. Excludes shares held by founders, government, or insiders',
   'Lock-up':       'A period (usually 6 months after IPO) when insiders cannot sell their shares, preventing a sudden flood of shares hitting the market',
+  /* More risk/stats terms */
+  'Convexity':     'Bond convexity — bonds fall less than predicted when rates rise, and gain more when rates fall. Like a bonus on top of Duration. Good for bond holders',
+  'variance':      'Variance — a measure of how spread out numbers are from the average. High variance = big swings. In investing, it means your returns jump around a lot',
+  'covariance':    'Covariance — how two investments move together. Positive = they rise and fall at the same time. Negative = when one goes up, the other tends to go down',
+  'mean reversion':'Mean reversion — the idea that extreme prices (very high or very low) tend to drift back toward the historical average over time',
+  'Primary Balance':'Primary Balance — government budget deficit/surplus BEFORE counting interest payments on old debt. Shows if current spending is sustainable',
+  'Fiscal Multiplier': 'Fiscal Multiplier — every Rp 1 of government spending can create more than Rp 1 of economic activity if people spend that money again and again',
+  'output gap':    'Output Gap — the difference between what the economy IS producing and what it COULD produce at full capacity. Negative gap = recession/underperformance',
+  'Information Ratio': 'Information Ratio — measures how much extra return a fund manager earns per unit of "active risk" taken vs the benchmark. Higher = better skill',
+  'amortized cost':'Amortized cost — valuing a bond at what you paid for it + accumulated interest, NOT at today\'s market price. Used for illiquid assets',
+  'yield spread':  'Yield spread — the difference in interest rates between two investments. A wide spread = one pays much more, usually because it\'s riskier',
+  'carry trade':   'Carry trade — borrow money in a low-interest currency (e.g., USD at 5%), invest in a high-interest currency (e.g., IDR at 5.25%), pocket the difference',
 };
 
 /* ── Formula enhancer ─────────────────────────────────────────
@@ -2139,7 +2175,9 @@ function _wApplyJargon(container) {
   container.querySelectorAll(sel).forEach(function(el) {
     if (el.querySelector('abbr')) return; // already processed
     Object.keys(_wJargon).forEach(function(term) {
-      var re = new RegExp('\\b(' + term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')\\b','g');
+      // 'gi' = global + case-insensitive; $1 preserves original capitalisation
+      var escaped = term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      var re = new RegExp('\\b(' + escaped + ')\\b','gi');
       el.innerHTML = el.innerHTML.replace(re,
         '<abbr class="jargon" title="' + _wJargon[term].replace(/"/g,"'") + '">$1</abbr>');
     });
