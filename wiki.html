@@ -1,0 +1,2634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financial Wiki — FinanceGraph 2026</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── Wiki layout ──────────────────────────────────────────── */
+    .wiki-layout {
+      display: flex;
+      padding-top: 56px;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ──────────────────────────────────────────────── */
+    .wiki-sidebar {
+      width: 260px;
+      min-width: 260px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .sidebar-search-wrap {
+      padding: 12px 12px 8px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    #wiki-search {
+      width: 100%;
+      padding: 8px 11px;
+      box-sizing: border-box;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 12px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s;
+    }
+    #wiki-search:focus { border-color: var(--accent); }
+    #sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 8px 16px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    /* Sidebar category groups */
+    .sb-cat-group { margin-bottom: 2px; }
+    .sb-cat-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 8px 5px;
+      cursor: pointer;
+      border-radius: 5px;
+      user-select: none;
+      transition: background .12s;
+    }
+    .sb-cat-header:hover { background: var(--surface2); }
+    .sb-cat-toggle {
+      font-size: 8px;
+      color: var(--text-muted);
+      transition: transform .2s;
+      flex-shrink: 0;
+    }
+    .sb-cat-toggle.open { transform: rotate(90deg); }
+    .sb-cat-name {
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-muted);
+      flex: 1;
+    }
+    .sb-cat-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .sb-cat-count {
+      font-size: 9px;
+      color: var(--text-muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 0 5px;
+      border-radius: 8px;
+    }
+    .sb-cat-entries {
+      overflow: hidden;
+      display: none;
+    }
+    .sb-cat-entries.open { display: block; }
+
+    /* Sidebar entries */
+    .sb-entry {
+      padding: 5px 8px 5px 20px;
+      border-radius: 5px;
+      border-left: 2px solid transparent;
+      cursor: pointer;
+      transition: all .12s;
+      margin-bottom: 1px;
+      font-size: 12px;
+      color: var(--text-2);
+    }
+    .sb-entry:hover {
+      background: var(--surface2);
+      border-left-color: var(--accent);
+      color: var(--text);
+    }
+    .sb-entry.active {
+      background: #0c2a3d;
+      border-left-color: var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ── Main content area ────────────────────────────────────── */
+    .wiki-main {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--bg);
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    /* ── Landing page ─────────────────────────────────────────── */
+    #wiki-landing {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 48px 32px 60px;
+    }
+    .landing-hero {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .landing-hero h1 {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1.2;
+      background: linear-gradient(135deg, #38bdf8, #818cf8, #fb923c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 14px;
+    }
+    .landing-hero p {
+      font-size: 16px;
+      color: var(--text-2);
+      line-height: 1.7;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .landing-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .cat-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+    .cat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius2);
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: border-color .2s, transform .2s, box-shadow .2s;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .cat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+    .cat-card-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .cat-card-count {
+      font-size: 11px;
+      color: var(--text-3);
+    }
+    .cat-card-bar {
+      height: 3px;
+      border-radius: 2px;
+      margin-top: 4px;
+    }
+    .quickstart-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .quickstart-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 13px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .quickstart-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: #0c2a3d;
+    }
+
+    /* ── Article view ─────────────────────────────────────────── */
+    #wiki-article {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 32px 32px 80px;
+    }
+    .article-header {
+      margin-bottom: 28px;
+    }
+    .breadcrumb {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .breadcrumb span { color: var(--text-3); }
+    #article-title {
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    /* Context box */
+    .article-context {
+      background: var(--surface);
+      border-left: 3px solid #fbbf24;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+    }
+    .article-context-label {
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: #fbbf24;
+      margin-bottom: 5px;
+    }
+    .article-context-text {
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.65;
+    }
+
+    /* Table of Contents */
+    .article-toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 28px;
+    }
+    .article-toc-title {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .article-toc ol {
+      margin: 0;
+      padding-left: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .article-toc li {
+      font-size: 12px;
+    }
+    .article-toc a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .article-toc a:hover { color: #7dd3fc; text-decoration: underline; }
+
+    /* Article content typography */
+    .article-content {
+      font-size: 15px;
+      line-height: 1.85;
+      color: var(--text-2);
+      margin-bottom: 36px;
+    }
+    .article-content p { margin-bottom: 18px; }
+    .article-content p:last-child { margin-bottom: 0; }
+    .article-content strong { color: var(--text); font-weight: 600; }
+    .article-content em { color: #a78bfa; font-style: italic; }
+    .article-content br { line-height: 2.2; }
+    .article-content table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+    .article-content th {
+      background: var(--surface2);
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-3);
+      border-bottom: 1px solid var(--border);
+    }
+    .article-content td {
+      padding: 8px 12px;
+      border-top: 1px solid var(--border);
+      color: var(--text-2);
+    }
+    .article-content tr:hover td { background: var(--surface); }
+    .article-content ul, .article-content ol {
+      margin: 8px 0 16px 20px;
+    }
+    .article-content li { margin-bottom: 4px; }
+    .article-content .formula {
+      background: rgba(255,255,255,.05);
+      border-left: 3px solid var(--accent);
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      margin: 8px 0;
+      color: var(--text);
+    }
+
+    /* Article separator */
+    .article-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0;
+    }
+
+    /* Related terms */
+    .article-related {
+      margin-bottom: 28px;
+    }
+    .article-related-title {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .related-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+    .related-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .related-chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: #0c2a3d;
+    }
+
+    /* Prev / Next navigation */
+    .article-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    .article-nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 15px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+      text-decoration: none;
+      max-width: 48%;
+      min-width: 0;
+    }
+    .article-nav-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .article-nav-btn span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .article-nav-btn.nav-prev { flex-direction: row; }
+    .article-nav-btn.nav-next { flex-direction: row-reverse; margin-left: auto; }
+    .nav-arrow { flex-shrink: 0; color: var(--text-muted); }
+
+    /* ── Responsive ───────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .wiki-sidebar {
+        display: none;
+      }
+      #wiki-article, #wiki-landing {
+        padding: 24px 20px 60px;
+      }
+    }
+    @media (max-width: 600px) {
+      #article-title { font-size: 22px; }
+      .cat-cards-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ── Search results panel ────────────────────────────────── */
+    #wiki-search-results {
+      padding: 24px 32px 60px;
+      max-width: 800px;
+    }
+    .search-results-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    #sr-heading { font-size: 15px; color: var(--text-2); }
+    #sr-heading strong { color: var(--text); }
+    .sr-close-btn {
+      background: none; border: 1px solid var(--border); color: var(--text-3);
+      border-radius: 6px; padding: 5px 12px; cursor: pointer; font-size: 12px;
+      transition: all .15s;
+    }
+    .sr-close-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .sr-item {
+      display: block; width: 100%; text-align: left;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px 18px; margin-bottom: 10px;
+      cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .sr-item:hover { border-color: var(--accent); background: var(--surface2); }
+    .sr-item-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .sr-item-name { font-size: 16px; font-weight: 700; color: var(--text); }
+    .sr-item-cat {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; padding: 2px 8px; border-radius: 20px;
+      background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border);
+    }
+    .sr-item-snippet {
+      font-size: 13px; color: var(--text-3); line-height: 1.6;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .sr-item-snippet mark {
+      background: rgba(251,191,36,.18); color: #fbbf24;
+      border-radius: 2px; padding: 0 2px;
+    }
+    .sr-item-context {
+      font-size: 11px; color: var(--accent); margin-top: 6px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .sr-score-bar {
+      height: 3px; border-radius: 2px; background: var(--border);
+      margin-top: 8px; overflow: hidden;
+    }
+    .sr-score-fill { height: 100%; background: var(--accent); border-radius: 2px; }
+    .sr-empty {
+      text-align: center; padding: 48px 20px; color: var(--text-muted);
+    }
+    .sr-empty h3 { font-size: 18px; color: var(--text-3); margin-bottom: 10px; }
+    .sr-empty p { font-size: 14px; line-height: 1.7; }
+    .sr-suggestions { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .sr-suggestion-btn {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text-3); padding: 5px 14px; border-radius: 20px;
+      font-size: 12px; cursor: pointer; transition: all .15s;
+    }
+    .sr-suggestion-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Bigger typography ────────────────────────────────── */
+    .article-content { font-size: 16px; line-height: 1.95; }
+    .article-content p { margin-bottom: 20px; }
+    #article-title { font-size: 32px; }
+    .article-context-text { font-size: 14px; line-height: 1.8; }
+    .sb-entry { font-size: 13px; }
+    #wiki-search { font-size: 13px; }
+    .article-toc li { font-size: 13px; }
+    .related-chip { font-size: 13px; }
+    #wiki-landing p { font-size: 17px; line-height: 1.85; }
+    .landing-hero h1 { font-size: 36px; }
+
+    /* ── Reading info row ─────────────────────────────────── */
+    .article-reading-info {
+      display: flex; align-items: center; gap: 12px;
+      margin-top: 8px; flex-wrap: wrap;
+    }
+    .reading-time-badge {
+      font-size: 11px; color: var(--text-muted);
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 3px 10px; border-radius: 20px; display: flex; align-items: center; gap: 5px;
+    }
+    .read-badge {
+      font-size: 11px; font-weight: 700;
+      background: rgba(74,222,128,.12); border: 1px solid rgba(74,222,128,.3);
+      color: #4ade80; padding: 3px 10px; border-radius: 20px; display: none; align-items: center; gap: 5px;
+    }
+    .read-badge.visible { display: flex; }
+
+    /* ── ELI5 box ─────────────────────────────────────────── */
+    .eli5-box {
+      background: linear-gradient(135deg,#0a1f30,#0f2940);
+      border: 1px solid #38bdf840;
+      border-radius: 12px; margin-bottom: 20px; overflow: hidden;
+    }
+    .eli5-toggle {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 18px; cursor: pointer;
+      color: #38bdf8; font-size: 13px; font-weight: 700;
+      user-select: none; transition: background .15s;
+    }
+    .eli5-toggle:hover { background: rgba(56,189,248,.06); }
+    .eli5-toggle-left { display: flex; align-items: center; gap: 8px; }
+    .eli5-chevron { font-size: 10px; color: #38bdf880; transition: transform .25s; }
+    .eli5-chevron.open { transform: rotate(180deg); }
+    .eli5-body { padding: 0 18px 18px; display: none; }
+    .eli5-body.open { display: block; }
+    .eli5-emoji-row { font-size: 34px; margin-bottom: 10px; }
+    .eli5-text {
+      font-size: 15px; line-height: 1.85; color: var(--text-2); margin-bottom: 14px;
+    }
+    .eli5-analogy {
+      background: rgba(251,191,36,.07); border-left: 3px solid #fbbf24;
+      border-radius: 0 9px 9px 0; padding: 11px 14px;
+      font-size: 14px; color: var(--text-2); line-height: 1.7;
+    }
+
+    /* ── Quiz module ──────────────────────────────────────── */
+    .quiz-module {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 22px 24px; margin: 32px 0;
+    }
+    .quiz-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 18px;
+    }
+    .quiz-icon { font-size: 22px; }
+    .quiz-title { font-size: 15px; font-weight: 800; color: var(--text); flex: 1; }
+    .quiz-progress {
+      font-size: 12px; color: var(--text-muted);
+      background: var(--surface2); border: 1px solid var(--border);
+      padding: 3px 10px; border-radius: 20px;
+    }
+    .quiz-q-text { font-size: 15px; color: var(--text); line-height: 1.75; margin-bottom: 16px; font-weight: 500; }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+    .quiz-opt {
+      display: block; width: 100%; text-align: left;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: 9px; padding: 12px 16px; font-size: 14px;
+      color: var(--text-2); cursor: pointer; transition: all .15s; line-height: 1.55;
+      font-family: inherit;
+    }
+    .quiz-opt:hover:not(:disabled) { border-color: var(--accent); color: var(--text); background: var(--surface2); }
+    .quiz-opt.correct { border-color: #4ade80 !important; background: rgba(74,222,128,.1) !important; color: #4ade80 !important; }
+    .quiz-opt.wrong   { border-color: #f87171 !important; background: rgba(248,113,113,.1) !important; color: #f87171 !important; }
+    .quiz-opt:disabled { cursor: default; }
+    .quiz-feedback {
+      margin-top: 14px; padding: 12px 16px;
+      border-radius: 9px; font-size: 14px; line-height: 1.7;
+    }
+    .quiz-feedback.correct { background: rgba(74,222,128,.07); border: 1px solid rgba(74,222,128,.25); color: #bbf7d0; }
+    .quiz-feedback.wrong   { background: rgba(248,113,113,.07); border: 1px solid rgba(248,113,113,.25); color: #fecaca; }
+    .quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+    .quiz-nav-btn {
+      background: var(--accent); color: #fff; border: none;
+      padding: 9px 22px; border-radius: 8px; font-size: 13px;
+      font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity .15s;
+    }
+    .quiz-nav-btn:hover:not(:disabled) { opacity: .85; }
+    .quiz-nav-btn:disabled { opacity: .35; cursor: default; }
+    .quiz-score { font-size: 12px; color: var(--text-muted); }
+    .quiz-complete { text-align: center; padding: 20px 0 8px; }
+    .quiz-complete-emoji { font-size: 44px; margin-bottom: 8px; }
+    .quiz-complete-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+    .quiz-complete-sub { font-size: 14px; color: var(--text-2); line-height: 1.7; }
+    .quiz-retry-btn {
+      margin-top: 14px; background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text-2); padding: 8px 20px; border-radius: 8px;
+      font-size: 13px; cursor: pointer; font-family: inherit; transition: all .15s;
+    }
+    .quiz-retry-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Interactive Calculator ───────────────────────────── */
+    .calc-box {
+      background: linear-gradient(135deg, var(--surface), var(--surface2));
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 22px 24px; margin: 28px 0;
+    }
+    .calc-title {
+      font-size: 14px; font-weight: 800; color: var(--accent);
+      margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+    }
+    .calc-row { margin-bottom: 18px; }
+    .calc-label {
+      font-size: 12px; color: var(--text-muted);
+      margin-bottom: 7px; display: flex; justify-content: space-between;
+    }
+    .calc-label strong { color: var(--text-2); font-size: 13px; }
+    .calc-slider {
+      width: 100%; -webkit-appearance: none; appearance: none;
+      height: 5px; border-radius: 4px; background: var(--border); outline: none; cursor: pointer;
+    }
+    .calc-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--accent); cursor: pointer; border: 2px solid var(--bg);
+      box-shadow: 0 0 0 3px rgba(56,189,248,.2);
+    }
+    .calc-result {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px 20px; margin-top: 20px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 16px;
+    }
+    .calc-result-item { text-align: center; }
+    .calc-result-label { font-size: 10px; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .08em; }
+    .calc-result-value { font-size: 22px; font-weight: 800; color: var(--accent); }
+    .calc-result-sub { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+
+    /* ── Mark as read ─────────────────────────────────────── */
+    .mark-read-wrap {
+      display: flex; align-items: center; justify-content: center;
+      gap: 14px; padding: 22px 0 4px; flex-wrap: wrap;
+    }
+    .mark-read-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 26px; border-radius: 10px;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      border: 1.5px solid var(--border); background: var(--surface);
+      color: var(--text-2); transition: all .2s; font-family: inherit;
+    }
+    .mark-read-btn:hover { border-color: #4ade80; color: #4ade80; background: rgba(74,222,128,.07); }
+    .mark-read-btn.done { border-color: #4ade80; background: rgba(74,222,128,.1); color: #4ade80; }
+
+    /* ── Sidebar progress ─────────────────────────────────── */
+    .sidebar-progress {
+      padding: 10px 12px 10px; border-top: 1px solid var(--border); flex-shrink: 0;
+    }
+    .sp-label { font-size: 10px; color: var(--text-muted); margin-bottom: 5px; display: flex; justify-content: space-between; }
+    .sp-bar { height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .sp-fill { height: 100%; background: linear-gradient(90deg, #38bdf8, #4ade80); border-radius: 4px; transition: width .4s ease; }
+
+    /* ── Visual Content Components ──────────────────────────── */
+    .v-intro { font-size: 15px; line-height: 1.85; color: var(--text-2); margin-bottom: 20px; font-weight: 500; }
+    .v-section-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--text-muted); margin: 22px 0 10px; }
+    /* Flow */
+    .v-flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 6px; margin: 16px 0; }
+    .v-step { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; flex: 1; min-width: 110px; text-align: center; }
+    .v-step-num { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--text-muted); margin-bottom: 4px; }
+    .v-step-icon { font-size: 24px; margin-bottom: 5px; }
+    .v-step-text { font-size: 12px; color: var(--text-2); line-height: 1.55; }
+    .v-arrow { color: var(--text-muted); font-size: 18px; flex-shrink: 0; align-self: center; }
+    /* Facts grid */
+    .v-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin: 16px 0; }
+    .v-fact { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+    .v-fact-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--text-muted); margin-bottom: 6px; }
+    .v-fact-value { font-size: 19px; font-weight: 800; color: var(--accent); margin-bottom: 3px; }
+    .v-fact-sub { font-size: 11px; color: var(--text-3); line-height: 1.5; }
+    /* Comparison */
+    .v-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+    .v-col { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+    .v-col-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 10px; }
+    .v-col ul { margin: 0; padding-left: 16px; }
+    .v-col li { font-size: 13px; color: var(--text-2); line-height: 1.7; margin-bottom: 3px; }
+    .v-col.green .v-col-title { color: #4ade80; }
+    .v-col.red .v-col-title { color: #f87171; }
+    .v-col.blue .v-col-title { color: #38bdf8; }
+    .v-col.amber .v-col-title { color: #fbbf24; }
+    /* Example box */
+    .v-example { background: linear-gradient(135deg, #0a1f30, #0f2940); border: 1px solid #38bdf840; border-radius: 10px; padding: 16px 18px; margin: 16px 0; }
+    .v-example-title { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: #38bdf8; margin-bottom: 10px; }
+    .v-example-body { font-size: 13px; color: var(--text-2); line-height: 1.85; }
+    .v-example-body strong { color: var(--accent); }
+    /* Alert boxes */
+    .v-tip { background: rgba(74,222,128,.07); border-left: 3px solid #4ade80; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 14px 0; font-size: 13px; color: var(--text-2); line-height: 1.75; }
+    .v-tip strong { color: #4ade80; }
+    .v-warn { background: rgba(251,191,36,.07); border-left: 3px solid #fbbf24; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 14px 0; font-size: 13px; color: var(--text-2); line-height: 1.75; }
+    .v-warn strong { color: #fbbf24; }
+    .v-danger { background: rgba(248,113,113,.07); border-left: 3px solid #f87171; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 14px 0; font-size: 13px; color: var(--text-2); line-height: 1.75; }
+    .v-danger strong { color: #f87171; }
+    /* Formula */
+    .v-formula { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 14px 0; padding: 14px; background: var(--surface); border-radius: 10px; font-size: 14px; color: var(--text); }
+    .v-formula-part { font-weight: 700; color: var(--accent); }
+    .v-formula-op { color: var(--text-muted); }
+    /* 2-column text */
+    .v-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+    /* Spectrum bar */
+    .v-spectrum { margin: 16px 0; }
+    .v-spec-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .v-spec-label { font-size: 11px; color: var(--text-2); min-width: 140px; }
+    .v-spec-bar-wrap { flex: 1; height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .v-spec-bar { height: 100%; border-radius: 4px; }
+    .v-spec-val { font-size: 11px; color: var(--text-muted); min-width: 50px; text-align: right; }
+    /* Table */
+    .v-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    .v-table th { background: var(--surface); color: var(--text-muted); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+    .v-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-2); line-height: 1.55; }
+    .v-table tr:last-child td { border-bottom: none; }
+    .v-table td:first-child { color: var(--text); font-weight: 600; }
+    /* Highlight badge inline */
+    .v-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+    .v-badge.green { background: rgba(74,222,128,.15); color: #4ade80; }
+    .v-badge.red { background: rgba(248,113,113,.15); color: #f87171; }
+    .v-badge.blue { background: rgba(56,189,248,.15); color: #38bdf8; }
+    .v-badge.amber { background: rgba(251,191,36,.15); color: #fbbf24; }
+    /* Responsive */
+    @media (max-width: 600px) {
+      .v-arrow { transform: rotate(90deg); }
+      .v-compare, .v-2col { grid-template-columns: 1fr; }
+    }
+
+    /* ── Video Cards (YouTube search) ───────────────────────── */
+    .v-videos { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+    .v-video-card { display: flex; align-items: center; gap: 12px; background: #0c0c10; border: 1px solid #ff000040; border-radius: 10px; padding: 12px 16px; text-decoration: none; flex: 1; min-width: 200px; transition: all .2s; cursor: pointer; }
+    .v-video-card:hover { background: #150a0a; border-color: #ff0000a0; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255,0,0,.12); }
+    .v-video-play { width: 38px; height: 38px; background: #ff0000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; color: white; }
+    .v-video-info { flex: 1; min-width: 0; }
+    .v-video-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .v-video-sub { font-size: 11px; color: var(--text-muted); }
+
+    /* ── News / Events ──────────────────────────────────────── */
+    .v-news { margin: 16px 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .v-news-header { background: var(--surface); padding: 8px 14px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+    .v-news-item { display: flex; gap: 12px; padding: 12px 14px; border-top: 1px solid var(--border); }
+    .v-news-date { font-size: 10px; font-weight: 700; color: var(--accent); min-width: 68px; flex-shrink: 0; padding-top: 2px; }
+    .v-news-body { flex: 1; }
+    .v-news-headline { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; line-height: 1.45; }
+    .v-news-detail { font-size: 12px; color: var(--text-2); line-height: 1.65; }
+
+    /* ── Timeline ───────────────────────────────────────────── */
+    .v-timeline { margin: 16px 0; position: relative; }
+    .v-tl-item { display: flex; gap: 14px; margin-bottom: 6px; }
+    .v-tl-left { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 54px; }
+    .v-tl-year { font-size: 11px; font-weight: 800; color: var(--accent); text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 3px 6px; width: 100%; text-align: center; }
+    .v-tl-line { width: 2px; background: var(--border); flex: 1; margin: 3px auto; min-height: 10px; }
+    .v-tl-item:last-child .v-tl-line { display: none; }
+    .v-tl-content { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; flex: 1; margin-bottom: 6px; }
+    .v-tl-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .v-tl-desc { font-size: 12px; color: var(--text-2); line-height: 1.65; }
+
+    /* ── Case Study (purple) ────────────────────────────────── */
+    .v-case { background: linear-gradient(135deg, #1a0a2e 0%, #0f0520 100%); border: 1px solid #7c3aed50; border-radius: 10px; padding: 16px 18px; margin: 16px 0; }
+    .v-case-tag { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: #a78bfa; margin-bottom: 8px; }
+    .v-case-title { font-size: 14px; font-weight: 700; color: #ddd6fe; margin-bottom: 8px; }
+    .v-case-body { font-size: 13px; color: #c4b5fd; line-height: 1.85; }
+    .v-case-body strong { color: #fff; }
+    .v-case-outcome { margin-top: 10px; padding: 8px 12px; background: rgba(124,58,237,.15); border-radius: 6px; font-size: 12px; color: #ddd6fe; }
+
+    /* ── Analogy Box (green) ────────────────────────────────── */
+    .v-analogy { background: linear-gradient(135deg, #0a1f14 0%, #0d1f0f 100%); border: 1px solid #22c55e40; border-radius: 10px; padding: 16px 18px; margin: 16px 0; display: flex; gap: 14px; align-items: flex-start; }
+    .v-analogy-icon { font-size: 32px; flex-shrink: 0; }
+    .v-analogy-content { flex: 1; }
+    .v-analogy-tag { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: #86efac; margin-bottom: 6px; }
+    .v-analogy-body { font-size: 13px; color: #bbf7d0; line-height: 1.85; }
+    .v-analogy-body strong { color: #fff; }
+
+    /* ── Big Hero Stat ──────────────────────────────────────── */
+    .v-stat-big { text-align: center; padding: 24px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin: 16px 0; }
+    .v-stat-number { font-size: 52px; font-weight: 900; background: linear-gradient(135deg, #38bdf8, #4ade80); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; margin-bottom: 8px; }
+    .v-stat-label { font-size: 14px; font-weight: 600; color: var(--text-2); }
+    .v-stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+    /* ── Interactive Simulation ─────────────────────────────── */
+    .v-sim { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin: 16px 0; }
+    .v-sim-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+    .v-sim-icon { font-size: 18px; }
+    .v-sim-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); }
+    .v-sim-controls { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 14px; }
+    .v-sim-control { flex: 1; min-width: 130px; }
+    .v-sim-control label { font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .v-sim-control label span { font-weight: 700; color: var(--accent); }
+    .v-sim-control input[type=range] { width: 100%; accent-color: var(--accent); }
+    .v-sim-metrics { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .v-sim-metric { flex: 1; min-width: 100px; background: #0a0f1a; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; text-align: center; }
+    .v-sim-metric-val { font-size: 20px; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+    .v-sim-metric-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; }
+    .v-sim-canvas { display: block; width: 100%; border-radius: 6px; }
+
+    /* ── Pull Quote ─────────────────────────────────────────── */
+    .v-quote { border-left: 3px solid var(--accent); padding: 10px 16px; margin: 16px 0; }
+    .v-quote-text { font-size: 15px; font-style: italic; color: var(--text-2); line-height: 1.75; }
+    .v-quote-source { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
+    /* ── Checklist ──────────────────────────────────────────── */
+    .v-checks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; margin: 14px 0; }
+    .v-check { display: flex; align-items: flex-start; gap: 7px; font-size: 12px; color: var(--text-2); line-height: 1.6; }
+    .v-check-icon { flex-shrink: 0; font-size: 13px; margin-top: 1px; }
+
+    /* ── Highlight Number Inline ────────────────────────────── */
+    .hl { color: var(--accent); font-weight: 800; }
+    .hl-green { color: #4ade80; font-weight: 700; }
+    .hl-red { color: #f87171; font-weight: 700; }
+    .hl-amber { color: #fbbf24; font-weight: 700; }
+
+    /* ── Section divider ────────────────────────────────────── */
+    .v-divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+    /* ── Stats Row ───────────────────────────────────────────── */
+    .v-stats-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+    .v-stat-box { flex: 1; min-width: 120px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 12px; text-align: center; }
+    .v-stat-box-num { font-size: 26px; font-weight: 900; background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.1; }
+    .v-stat-box-label { font-size: 10px; font-weight: 700; color: var(--text); margin-top: 4px; text-transform: uppercase; letter-spacing: .04em; }
+    .v-stat-box-sub { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ── Key Insight ─────────────────────────────────────────── */
+    .v-key-insight { display: flex; gap: 14px; align-items: flex-start; background: linear-gradient(135deg, #0a1628, #111827); border: 1px solid #3b82f640; border-radius: 12px; padding: 16px; margin: 16px 0; }
+    .v-ki-icon { font-size: 28px; flex-shrink: 0; line-height: 1; }
+    .v-ki-title { font-size: 10px; font-weight: 800; color: #60a5fa; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+    .v-ki-text { font-size: 13px; color: #bfdbfe; line-height: 1.6; }
+
+    /* ── Checklist ───────────────────────────────────────────── */
+    .v-checklist { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin: 16px 0; }
+    .v-cl-title { font-size: 11px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+    .v-cl-item { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text); line-height: 1.5; }
+    .v-cl-item:last-child { border-bottom: none; }
+    .v-cl-check { color: #4ade80; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+    .v-cl-warn-icon { color: #fbbf24; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Indicator Badges ────────────────────────────────────── */
+    .v-indicators { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0; }
+    .v-indicator { flex: 1; min-width: 110px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; text-align: center; }
+    .v-ind-label { font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
+    .v-ind-value { font-size: 18px; font-weight: 900; margin: 3px 0; }
+    .v-ind-sub { font-size: 9px; color: var(--text-muted); }
+    .v-ind-up .v-ind-value { color: #4ade80; }
+    .v-ind-down .v-ind-value { color: #f87171; }
+    .v-ind-neutral .v-ind-value { color: #fbbf24; }
+
+    /* ── Did-You-Know Box ────────────────────────────────────── */
+    .v-dyk { background: linear-gradient(135deg, #1e1b4b, #0f172a); border-left: 4px solid #818cf8; border-radius: 0 10px 10px 0; padding: 14px 16px; margin: 16px 0; }
+    .v-dyk-header { font-size: 9px; font-weight: 800; color: #818cf8; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px; }
+    .v-dyk-text { font-size: 13px; color: #c7d2fe; line-height: 1.6; }
+
+    /* ── Myth vs Reality ─────────────────────────────────────── */
+    .v-myths { margin: 16px 0; display: flex; flex-direction: column; gap: 8px; }
+    .v-myth-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+    .v-myth-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+    .v-myth-text { font-size: 12px; line-height: 1.5; color: var(--text); }
+    .v-myth-item.myth .v-myth-label { color: #f87171; }
+    .v-myth-item.myth { border-color: #f8717130; background: #1a0a0a; }
+    .v-myth-item.reality .v-myth-label { color: #4ade80; }
+    .v-myth-item.reality { border-color: #4ade8030; background: #0a1a0a; }
+
+    /* ── Responsive additions ───────────────────────────────── */
+    @media (max-width: 600px) {
+      .v-checks { grid-template-columns: 1fr; }
+      .v-videos { flex-direction: column; }
+      .v-analogy { flex-direction: column; }
+      .v-stat-number { font-size: 38px; }
+      .v-stats-row { flex-direction: column; }
+      .v-indicators { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Top Nav ──────────────────────────────────────────────── -->
+<nav id="topnav">
+  <a href="index.html" class="logo">💹 FinanceGraph 2026</a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="wiki.html" class="active">📚 Wiki</a>
+  </nav>
+</nav>
+
+<div class="wiki-layout">
+
+  <!-- ── Sidebar ──────────────────────────────────────────────── -->
+  <aside class="wiki-sidebar" id="wiki-sidebar">
+    <div class="sidebar-search-wrap">
+      <input type="search" id="wiki-search" placeholder="🔍 Search — try 'saham', 'inflasi'..." autocomplete="off" spellcheck="false" />
+      <div id="search-status" style="font-size:11px;color:var(--text-muted);margin-top:5px;min-height:14px;padding:0 2px"></div>
+    </div>
+    <div id="sidebar-nav"><!-- built by JS --></div>
+    <div class="sidebar-progress">
+      <div class="sp-label"><span>Reading progress</span><span id="sp-count">0 / 58 read</span></div>
+      <div class="sp-bar"><div class="sp-fill" id="sp-fill" style="width:0%"></div></div>
+    </div>
+  </aside>
+
+  <!-- ── Main content ─────────────────────────────────────────── -->
+  <main class="wiki-main" id="wiki-main">
+
+    <!-- Landing state -->
+    <div id="wiki-landing">
+      <div class="landing-hero">
+        <h1>Welcome to the Financial Wiki</h1>
+        <p>58 financial terms explained for beginners — from middle school to expert level. Browse by category or search for any term.</p>
+      </div>
+
+      <div class="landing-section-title">Browse by Category</div>
+      <div class="cat-cards-grid" id="cat-cards"><!-- built by JS --></div>
+
+      <div class="landing-section-title">Quick Start — 5 Essential Terms</div>
+      <div class="quickstart-list">
+        <button class="quickstart-btn" onclick="showEntry('inflation')">📉 Inflation</button>
+        <button class="quickstart-btn" onclick="showEntry('compound-interest')">📈 Compound Interest</button>
+        <button class="quickstart-btn" onclick="showEntry('ihsg')">🇮🇩 IHSG</button>
+        <button class="quickstart-btn" onclick="showEntry('sp500')">🇺🇸 S&amp;P 500</button>
+        <button class="quickstart-btn" onclick="showEntry('interest-rate')">🏦 Interest Rate</button>
+      </div>
+    </div>
+
+    <!-- Search results panel (shown while typing) -->
+    <div id="wiki-search-results" style="display:none">
+      <div class="search-results-header">
+        <span id="sr-heading"></span>
+        <button class="sr-close-btn" onclick="clearSearch()" title="Clear search">✕ Clear</button>
+      </div>
+      <div id="sr-list"></div>
+    </div>
+
+    <!-- Article view -->
+    <div id="wiki-article" style="display:none">
+      <div class="article-header">
+        <div class="breadcrumb" id="article-breadcrumb"></div>
+        <h1 id="article-title"></h1>
+        <div class="article-reading-info">
+          <span class="reading-time-badge" id="reading-time-badge">📖 — min read</span>
+          <span class="read-badge" id="read-badge">✓ Read</span>
+        </div>
+      </div>
+      <div class="article-body">
+        <div id="article-eli5"></div>
+        <div class="article-context" id="article-context" style="display:none">
+          <div class="article-context-label">📅 May 2026 Context</div>
+          <div class="article-context-text" id="article-context-text"></div>
+        </div>
+        <div class="article-toc" id="article-toc" style="display:none">
+          <div class="article-toc-title">Contents</div>
+          <ol id="article-toc-list"></ol>
+        </div>
+        <div class="article-content" id="article-content"></div>
+        <div id="article-calculator"></div>
+        <div id="article-quiz"></div>
+        <hr class="article-divider">
+        <div class="article-related" id="article-related" style="display:none">
+          <div class="article-related-title">Related Terms</div>
+          <div class="related-chips" id="article-related-chips"></div>
+        </div>
+        <div id="article-mark-read"></div>
+        <div class="article-nav" id="article-nav"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="js/data/wiki.js"></script>
+<script src="js/data/entries/fundamentals.js"></script>
+<script src="js/data/entries/markets.js"></script>
+<script src="js/data/entries/instruments.js"></script>
+<script src="js/data/entries/metrics.js"></script>
+<script src="js/data/entries/strategies.js"></script>
+<script src="js/data/entries/macro.js"></script>
+<script src="js/data/entries/indonesia.js"></script>
+<script src="js/data/entries/us.js"></script>
+<script src="js/data/learn.js"></script>
+<script>
+/* ── Category config ──────────────────────────────────────── */
+var CAT_COLORS = {
+  'Fundamentals':   '#38bdf8',
+  'Markets':        '#4ade80',
+  'Instruments':    '#fb923c',
+  'Metrics':        '#a78bfa',
+  'Strategies':     '#06b6d4',
+  'Macroeconomics': '#fbbf24',
+  'Indonesia':      '#f87171',
+  'US Focus':       '#60a5fa',
+};
+
+var CAT_DISPLAY = {
+  'Fundamentals':   'Fundamentals',
+  'Markets':        'Markets',
+  'Instruments':    'Instruments',
+  'Metrics':        'Metrics',
+  'Strategies':     'Strategies',
+  'Macroeconomics': 'Macroeconomics',
+  'Indonesia':      '🇮🇩 Indonesia',
+  'US Focus':       '🇺🇸 US Focus',
+};
+
+/* ── Helpers ──────────────────────────────────────────────── */
+function getCatColor(cat) {
+  return CAT_COLORS[cat] || '#94a3b8';
+}
+
+/* Build ordered list of [id, entry] pairs grouped by category */
+function groupByCategory() {
+  var groups = {}; // cat -> [{id, entry}]
+  Object.keys(WIKI_DATA).forEach(function(id) {
+    var e = WIKI_DATA[id];
+    var cat = e.cat;
+    if (!groups[cat]) groups[cat] = [];
+    groups[cat].push({id: id, entry: e});
+  });
+  // Sort entries within each category alphabetically
+  Object.keys(groups).forEach(function(cat) {
+    groups[cat].sort(function(a, b) { return a.entry.name.localeCompare(b.entry.name); });
+  });
+  return groups;
+}
+
+/* Get ordered list of ids within a category */
+function getCatIds(cat) {
+  var groups = groupByCategory();
+  return (groups[cat] || []).map(function(item) { return item.id; });
+}
+
+/* ── Build sidebar ────────────────────────────────────────── */
+var _groups = null;
+function getGroups() {
+  if (!_groups) _groups = groupByCategory();
+  return _groups;
+}
+
+function buildSidebar() {
+  var nav = document.getElementById('sidebar-nav');
+  var groups = getGroups();
+  var catOrder = ['Fundamentals','Markets','Instruments','Metrics','Strategies','Macroeconomics','Indonesia','US Focus'];
+  var html = '';
+
+  catOrder.forEach(function(cat, idx) {
+    if (!groups[cat]) return;
+    var entries = groups[cat];
+    var color = getCatColor(cat);
+    var isOpen = (cat === 'Fundamentals'); // first one open by default
+    html += '<div class="sb-cat-group" data-cat="' + cat + '">';
+    html += '<div class="sb-cat-header" onclick="toggleCat(\'' + cat + '\')">';
+    html += '<span class="sb-cat-toggle' + (isOpen ? ' open' : '') + '" id="sb-toggle-' + catId(cat) + '">&#9654;</span>';
+    html += '<span class="sb-cat-dot" style="background:' + color + '"></span>';
+    html += '<span class="sb-cat-name">' + (CAT_DISPLAY[cat] || cat) + '</span>';
+    html += '<span class="sb-cat-count">' + entries.length + '</span>';
+    html += '</div>';
+    html += '<div class="sb-cat-entries' + (isOpen ? ' open' : '') + '" id="sb-entries-' + catId(cat) + '">';
+    entries.forEach(function(item) {
+      html += '<div class="sb-entry" data-id="' + item.id + '" id="sb-entry-' + item.id + '" onclick="showEntry(\'' + item.id + '\')">' + escapeHtml(item.entry.name) + '</div>';
+    });
+    html += '</div>';
+    html += '</div>';
+  });
+
+  nav.innerHTML = html;
+}
+
+function catId(cat) {
+  return cat.toLowerCase().replace(/[^a-z0-9]/g, '-');
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function toggleCat(cat) {
+  var cid = catId(cat);
+  var entries = document.getElementById('sb-entries-' + cid);
+  var toggle = document.getElementById('sb-toggle-' + cid);
+  if (!entries) return;
+  var isOpen = entries.classList.contains('open');
+  entries.classList.toggle('open', !isOpen);
+  toggle.classList.toggle('open', !isOpen);
+}
+
+/* ── Build landing category cards ─────────────────────────── */
+function buildCatCards() {
+  var container = document.getElementById('cat-cards');
+  var groups = getGroups();
+  var catOrder = ['Fundamentals','Markets','Instruments','Metrics','Strategies','Macroeconomics','Indonesia','US Focus'];
+  var html = '';
+  catOrder.forEach(function(cat) {
+    if (!groups[cat]) return;
+    var color = getCatColor(cat);
+    var count = groups[cat].length;
+    html += '<div class="cat-card" style="border-color:' + color + '33" onclick="focusCat(\'' + cat + '\')">';
+    html += '<div class="cat-card-name" style="color:' + color + '">' + (CAT_DISPLAY[cat] || cat) + '</div>';
+    html += '<div class="cat-card-count">' + count + ' terms</div>';
+    html += '<div class="cat-card-bar" style="background:' + color + '55"></div>';
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+
+function focusCat(cat) {
+  // Open the category in sidebar and scroll to it
+  var cid = catId(cat);
+  var entries = document.getElementById('sb-entries-' + cid);
+  var toggle = document.getElementById('sb-toggle-' + cid);
+  if (entries && !entries.classList.contains('open')) {
+    entries.classList.add('open');
+    if (toggle) toggle.classList.add('open');
+  }
+  // Scroll sidebar to that group
+  var header = document.querySelector('.sb-cat-group[data-cat="' + cat + '"] .sb-cat-header');
+  if (header) header.scrollIntoView({behavior:'smooth', block:'nearest'});
+  // Focus the search box
+  document.getElementById('wiki-search').focus();
+}
+
+/* ── Show entry (main article view) ───────────────────────── */
+var currentId = null;
+
+function showEntry(id) {
+  var entry = WIKI_DATA[id];
+  if (!entry) return;
+  currentId = id;
+
+  // Update URL hash
+  history.replaceState(null, '', '#' + id);
+
+  // Switch views
+  document.getElementById('wiki-landing').style.display = 'none';
+  document.getElementById('wiki-search-results').style.display = 'none';
+  var article = document.getElementById('wiki-article');
+  article.style.display = '';
+
+  // Breadcrumb
+  var crumb = document.getElementById('article-breadcrumb');
+  var catColor = getCatColor(entry.cat);
+  crumb.innerHTML = '<span style="color:' + catColor + '">' + escapeHtml(CAT_DISPLAY[entry.cat] || entry.cat) + '</span> <span>&rsaquo;</span> ' + escapeHtml(entry.name);
+
+  // Title
+  document.getElementById('article-title').textContent = entry.name;
+
+  // Context box
+  var ctx = document.getElementById('article-context');
+  var ctxText = document.getElementById('article-context-text');
+  if (entry.current) {
+    ctxText.textContent = entry.current;
+    ctx.style.display = '';
+  } else {
+    ctx.style.display = 'none';
+  }
+
+  // Content
+  var contentEl = document.getElementById('article-content');
+  contentEl.innerHTML = entry.full;
+
+  // Build ToC from <strong> tags at paragraph starts
+  buildToC(contentEl);
+
+  // Related terms
+  buildRelated(entry.related);
+
+  // Prev/Next nav
+  buildNav(id, entry.cat);
+
+  // Update sidebar active state
+  document.querySelectorAll('.sb-entry').forEach(function(el) {
+    el.classList.toggle('active', el.dataset.id === id);
+  });
+
+  // Ensure category is open in sidebar
+  var cid = catId(entry.cat);
+  var catEntries = document.getElementById('sb-entries-' + cid);
+  var catToggle = document.getElementById('sb-toggle-' + cid);
+  if (catEntries && !catEntries.classList.contains('open')) {
+    catEntries.classList.add('open');
+    if (catToggle) catToggle.classList.add('open');
+  }
+
+  // Scroll active entry into sidebar view
+  var activeEntry = document.getElementById('sb-entry-' + id);
+  if (activeEntry) {
+    activeEntry.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  // Scroll main to top
+  document.getElementById('wiki-main').scrollTo(0, 0);
+}
+
+/* ── Build Table of Contents ──────────────────────────────── */
+function buildToC(contentEl) {
+  var tocEl = document.getElementById('article-toc');
+  var tocList = document.getElementById('article-toc-list');
+
+  // Find strong tags that are the first child of a p tag
+  var paragraphs = contentEl.querySelectorAll('p');
+  var headings = [];
+
+  paragraphs.forEach(function(p, idx) {
+    var firstStrong = p.querySelector('strong:first-child');
+    if (!firstStrong) {
+      // Check if first text node is empty and first element is strong
+      var children = p.childNodes;
+      for (var i = 0; i < children.length; i++) {
+        var node = children[i];
+        if (node.nodeType === 3 && node.textContent.trim() === '') continue;
+        if (node.nodeName === 'STRONG') {
+          firstStrong = node;
+        }
+        break;
+      }
+    }
+    if (firstStrong && firstStrong.textContent.trim().length > 0) {
+      var text = firstStrong.textContent.trim();
+      // Skip if it's a formula or very short
+      if (text.length < 3 || text.length > 80) return;
+      var anchorId = 'toc-' + idx;
+      p.id = anchorId;
+      headings.push({id: anchorId, text: text});
+    }
+  });
+
+  if (headings.length >= 2) {
+    var html = '';
+    headings.forEach(function(h) {
+      html += '<li><a href="#' + h.id + '" onclick="scrollToAnchor(\'' + h.id + '\');return false;">' + escapeHtml(h.text) + '</a></li>';
+    });
+    tocList.innerHTML = html;
+    tocEl.style.display = '';
+  } else {
+    tocEl.style.display = 'none';
+  }
+}
+
+function scrollToAnchor(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+}
+
+/* ── Build related terms ──────────────────────────────────── */
+function buildRelated(related) {
+  var relEl = document.getElementById('article-related');
+  var chips = document.getElementById('article-related-chips');
+  if (!related || !related.length) {
+    relEl.style.display = 'none';
+    return;
+  }
+  var html = '';
+  related.forEach(function(rid) {
+    var re = WIKI_DATA[rid];
+    if (!re) return;
+    html += '<span class="related-chip" onclick="showEntry(\'' + rid + '\')">' + escapeHtml(re.name) + '</span>';
+  });
+  chips.innerHTML = html;
+  relEl.style.display = html ? '' : 'none';
+}
+
+/* ── Build prev/next nav ──────────────────────────────────── */
+function buildNav(id, cat) {
+  var navEl = document.getElementById('article-nav');
+  var catIds = getCatIds(cat);
+  var idx = catIds.indexOf(id);
+  var html = '';
+
+  if (idx > 0) {
+    var prevId = catIds[idx - 1];
+    var prevEntry = WIKI_DATA[prevId];
+    html += '<button class="article-nav-btn nav-prev" onclick="showEntry(\'' + prevId + '\')">';
+    html += '<span class="nav-arrow">&#8592;</span>';
+    html += '<span>' + escapeHtml(prevEntry.name) + '</span>';
+    html += '</button>';
+  } else {
+    html += '<div></div>';
+  }
+
+  if (idx < catIds.length - 1) {
+    var nextId = catIds[idx + 1];
+    var nextEntry = WIKI_DATA[nextId];
+    html += '<button class="article-nav-btn nav-next" onclick="showEntry(\'' + nextId + '\')">';
+    html += '<span class="nav-arrow">&#8594;</span>';
+    html += '<span>' + escapeHtml(nextEntry.name) + '</span>';
+    html += '</button>';
+  }
+
+  navEl.innerHTML = html;
+}
+
+/* ── RAG Search (FTS5 via /api/wiki/search) ───────────────── */
+var _searchTimer = null;
+var _lastQuery = '';
+
+function debounceSearch(query) {
+  clearTimeout(_searchTimer);
+  var status = document.getElementById('search-status');
+  if (!query || query.trim().length < 2) {
+    _lastQuery = '';
+    document.getElementById('wiki-search-results').style.display = 'none';
+    document.getElementById('wiki-landing').style.display = '';
+    document.getElementById('wiki-article').style.display = 'none';
+    status.textContent = '';
+    restoreSidebar();
+    currentId = null;
+    history.replaceState(null, '', location.pathname);
+    document.querySelectorAll('.sb-entry').forEach(function(el) { el.classList.remove('active'); });
+    return;
+  }
+  status.textContent = 'Searching…';
+  _searchTimer = setTimeout(function() { runSearch(query.trim()); }, 280);
+}
+
+function restoreSidebar() {
+  document.querySelectorAll('.sb-entry').forEach(function(el) { el.style.display = ''; });
+  document.querySelectorAll('.sb-cat-group').forEach(function(g) { g.style.display = ''; });
+}
+
+function runSearch(query) {
+  if (query === _lastQuery) return;
+  _lastQuery = query;
+  var status = document.getElementById('search-status');
+  fetch('/api/wiki/search?q=' + encodeURIComponent(query))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (query !== _lastQuery) return; // stale response
+      showSearchResults(data, query);
+      status.textContent = data.count > 0
+        ? data.count + ' result' + (data.count === 1 ? '' : 's') + ' for “' + query + '”'
+        : 'No results for “' + query + '”';
+    })
+    .catch(function() {
+      // API unavailable (file:// access or server not running) — local fallback
+      filterSidebarLocal(query);
+      status.textContent = 'Offline mode — showing name matches only';
+    });
+}
+
+function showSearchResults(data, query) {
+  document.getElementById('wiki-landing').style.display = 'none';
+  document.getElementById('wiki-article').style.display = 'none';
+  var results = document.getElementById('wiki-search-results');
+  var srList  = document.getElementById('sr-list');
+  var srHead  = document.getElementById('sr-heading');
+  results.style.display = '';
+
+  if (!data.results || data.results.length === 0) {
+    srHead.innerHTML = 'No results for <strong>"' + escapeHtml(query) + '"</strong>';
+    srList.innerHTML =
+      '<div class="sr-empty">' +
+        '<h3>Nothing found</h3>' +
+        '<p>Try different keywords. Indonesian terms like <em>saham</em>, <em>inflasi</em>, <em>bunga</em>, <em>suku bunga</em> are all supported.</p>' +
+        '<div class="sr-suggestions">' +
+          '<button class="sr-suggestion-btn" onclick="triggerSearch(\'inflation\')">inflation</button>' +
+          '<button class="sr-suggestion-btn" onclick="triggerSearch(\'stock market\')">stock market</button>' +
+          '<button class="sr-suggestion-btn" onclick="triggerSearch(\'interest rate\')">interest rate</button>' +
+          '<button class="sr-suggestion-btn" onclick="triggerSearch(\'ihsg\')">IHSG</button>' +
+          '<button class="sr-suggestion-btn" onclick="triggerSearch(\'investasi\')">investasi</button>' +
+        '</div>' +
+      '</div>';
+    return;
+  }
+
+  srHead.innerHTML = '<strong>' + data.count + '</strong> result' + (data.count === 1 ? '' : 's') + ' for <strong>“' + escapeHtml(query) + '”</strong>';
+
+  // BM25 scores are negative; least-negative = worst. Normalise fill bar.
+  var scores = data.results.map(function(r) { return r.score || 0; });
+  var minS = Math.min.apply(null, scores);
+  var maxS = Math.max.apply(null, scores);
+  var range = maxS - minS || 1;
+
+  var html = '';
+  data.results.forEach(function(r) {
+    var color = getCatColor(r.category);
+    var fill  = minS === maxS ? 85 : Math.round((1 - (r.score - minS) / range) * 100);
+    var snip  = r.snippet || '';
+    html += '<button class="sr-item" onclick="showEntryFromSearch(\'' + r.id + '\')">';
+    html += '<div class="sr-item-header">';
+    html += '<span class="sr-item-name">' + escapeHtml(r.name) + '</span>';
+    html += '<span class="sr-item-cat" style="color:' + color + ';border-color:' + color + '44;background:' + color + '11">' + escapeHtml(r.category) + '</span>';
+    html += '</div>';
+    if (snip) {
+      html += '<div class="sr-item-snippet">' + snip + '</div>';
+    } else if (r.current_context) {
+      html += '<div class="sr-item-context">📅 ' + escapeHtml(r.current_context) + '</div>';
+    }
+    html += '<div class="sr-score-bar"><div class="sr-score-fill" style="width:' + fill + '%"></div></div>';
+    html += '</button>';
+  });
+  srList.innerHTML = html;
+}
+
+function showEntryFromSearch(id) {
+  showEntry(id);
+  document.getElementById('search-status').textContent = '← Type to search again';
+}
+
+function clearSearch() {
+  var inp = document.getElementById('wiki-search');
+  inp.value = '';
+  _lastQuery = '';
+  clearTimeout(_searchTimer);
+  document.getElementById('wiki-search-results').style.display = 'none';
+  document.getElementById('wiki-landing').style.display = '';
+  document.getElementById('wiki-article').style.display = 'none';
+  document.getElementById('search-status').textContent = '';
+  restoreSidebar();
+  inp.focus();
+}
+
+function triggerSearch(query) {
+  var inp = document.getElementById('wiki-search');
+  inp.value = query;
+  _lastQuery = '';
+  debounceSearch(query);
+  inp.focus();
+}
+
+/* ── Client-side sidebar filter (offline / API fallback) ──── */
+function filterSidebarLocal(query) {
+  query = query.toLowerCase().trim();
+  document.querySelectorAll('.sb-entry').forEach(function(el) {
+    var id = el.dataset.id;
+    var entry = WIKI_DATA[id];
+    if (!entry) { el.style.display = 'none'; return; }
+    var show = !query || entry.name.toLowerCase().includes(query) || (entry.cat || '').toLowerCase().includes(query);
+    el.style.display = show ? '' : 'none';
+  });
+  document.querySelectorAll('.sb-cat-group').forEach(function(grp) {
+    var anyVisible = [].some.call(grp.querySelectorAll('.sb-entry'), function(e) { return e.style.display !== 'none'; });
+    grp.style.display = anyVisible ? '' : 'none';
+    if (anyVisible && query) {
+      var cid = catId(grp.dataset.cat);
+      var entries = document.getElementById('sb-entries-' + cid);
+      var toggle  = document.getElementById('sb-toggle-' + cid);
+      if (entries) { entries.classList.add('open'); if (toggle) toggle.classList.add('open'); }
+    }
+  });
+}
+
+/* ── Keyboard navigation ──────────────────────────────────── */
+function setupKeyboard() {
+  document.addEventListener('keydown', function(e) {
+    // Focus search on /
+    if (e.key === '/' && document.activeElement !== document.getElementById('wiki-search')) {
+      e.preventDefault();
+      document.getElementById('wiki-search').focus();
+      return;
+    }
+
+    if (!currentId) return;
+    var entry = WIKI_DATA[currentId];
+    if (!entry) return;
+    var catIds = getCatIds(entry.cat);
+    var idx = catIds.indexOf(currentId);
+
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      if (idx < catIds.length - 1) showEntry(catIds[idx + 1]);
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      if (idx > 0) showEntry(catIds[idx - 1]);
+    } else if (e.key === 'Escape') {
+      clearSearch();
+      history.replaceState(null, '', location.pathname);
+      currentId = null;
+      document.querySelectorAll('.sb-entry').forEach(function(el) { el.classList.remove('active'); });
+    }
+  });
+}
+
+/* ── Reading progress (localStorage) ─────────────────────── */
+function getReads() {
+  try { return JSON.parse(localStorage.getItem('wiki_reads') || '{}'); } catch(e) { return {}; }
+}
+function isRead(id) { return !!getReads()[id]; }
+function setRead(id, val) {
+  try {
+    var r = getReads(); r[id] = val ? 1 : 0;
+    localStorage.setItem('wiki_reads', JSON.stringify(r));
+  } catch(e) {}
+  fetch('/api/wiki/' + id + '/progress', {
+    method: 'PUT', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({is_read: val ? 1 : 0})
+  }).catch(function(){});
+  updateSidebarProgress();
+  buildMarkAsRead(id);
+}
+function updateSidebarProgress() {
+  var r = getReads();
+  var total = Object.keys(WIKI_DATA).length;
+  var count = Object.values(r).filter(Boolean).length;
+  var pct = Math.round((count / total) * 100);
+  var fill = document.getElementById('sp-fill');
+  var lbl  = document.getElementById('sp-count');
+  if (fill) fill.style.width = pct + '%';
+  if (lbl)  lbl.textContent  = count + ' / ' + total + ' read';
+}
+
+/* ── Reading time estimate ─────────────────────────────────── */
+function estimateReadTime(html) {
+  var text = html.replace(/<[^>]+>/g, ' ');
+  var words = text.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200));
+}
+
+/* ── ELI5 box ────────────────────────────────────────────────── */
+var _eli5Open = false;
+function buildELI5(id) {
+  var el = document.getElementById('article-eli5');
+  var data = window.ELI5 && window.ELI5[id];
+  if (!data) { el.innerHTML = ''; return; }
+  el.innerHTML =
+    '<div class="eli5-box">' +
+      '<div class="eli5-toggle" onclick="toggleELI5()" id="eli5-toggle">' +
+        '<div class="eli5-toggle-left">' +
+          '<span>' + data.emoji + '</span>' +
+          '<span>🧒 Explain it simply — age 10 level</span>' +
+        '</div>' +
+        '<span class="eli5-chevron" id="eli5-chevron">▼</span>' +
+      '</div>' +
+      '<div class="eli5-body" id="eli5-body">' +
+        '<div class="eli5-emoji-row">' + data.emoji + '</div>' +
+        '<div class="eli5-text">' + escapeHtml(data.simple) + '</div>' +
+        '<div class="eli5-analogy"><strong>💡 Think of it like:</strong> ' + escapeHtml(data.analogy) + '</div>' +
+      '</div>' +
+    '</div>';
+  _eli5Open = false;
+}
+function toggleELI5() {
+  _eli5Open = !_eli5Open;
+  var body = document.getElementById('eli5-body');
+  var chev = document.getElementById('eli5-chevron');
+  if (body) body.classList.toggle('open', _eli5Open);
+  if (chev) chev.classList.toggle('open', _eli5Open);
+}
+
+/* ── Interactive Calculators ─────────────────────────────────── */
+function fmtRp(n) {
+  if (n >= 1e12) return 'Rp ' + (n/1e12).toFixed(2) + ' T';
+  if (n >= 1e9)  return 'Rp ' + (n/1e9).toFixed(2) + ' M';
+  if (n >= 1e6)  return 'Rp ' + (n/1e6).toFixed(1) + ' jt';
+  return 'Rp ' + Math.round(n).toLocaleString('id-ID');
+}
+
+function buildCalculator(id) {
+  var el = document.getElementById('article-calculator');
+  var cfg = window.CALCULATORS && window.CALCULATORS[id];
+  if (!cfg) { el.innerHTML = ''; return; }
+
+  if (cfg.type === 'compound') {
+    el.innerHTML =
+      '<div class="calc-box">' +
+        '<div class="calc-title">🔢 Try It: Compound Interest Calculator</div>' +
+        '<div class="calc-row"><div class="calc-label"><span>Starting amount (Modal awal)</span><strong id="cv-p">Rp 10 jt</strong></div>' +
+          '<input type="range" class="calc-slider" id="ci-p" min="1000000" max="100000000" step="1000000" value="10000000" oninput="calcCI()"></div>' +
+        '<div class="calc-row"><div class="calc-label"><span>Annual return (%)</span><strong id="cv-r">8%</strong></div>' +
+          '<input type="range" class="calc-slider" id="ci-r" min="1" max="25" step="0.5" value="8" oninput="calcCI()"></div>' +
+        '<div class="calc-row"><div class="calc-label"><span>Time horizon (years)</span><strong id="cv-y">20 years</strong></div>' +
+          '<input type="range" class="calc-slider" id="ci-y" min="1" max="40" step="1" value="20" oninput="calcCI()"></div>' +
+        '<div class="calc-result" id="ci-result"></div>' +
+      '</div>';
+    calcCI();
+  } else if (cfg.type === 'rule72') {
+    el.innerHTML =
+      '<div class="calc-box">' +
+        '<div class="calc-title">⏰ Try It: Rule of 72 Calculator</div>' +
+        '<div class="calc-row"><div class="calc-label"><span>Annual return / inflation rate (%)</span><strong id="r72-rv">8%</strong></div>' +
+          '<input type="range" class="calc-slider" id="r72-r" min="1" max="30" step="0.5" value="8" oninput="calcR72()"></div>' +
+        '<div class="calc-result" id="r72-result"></div>' +
+      '</div>';
+    calcR72();
+  } else if (cfg.type === 'inflation') {
+    el.innerHTML =
+      '<div class="calc-box">' +
+        '<div class="calc-title">📉 Try It: Inflation / Purchasing Power Calculator</div>' +
+        '<div class="calc-row"><div class="calc-label"><span>Amount today</span><strong id="inf-pv">Rp 10 jt</strong></div>' +
+          '<input type="range" class="calc-slider" id="inf-p" min="1000000" max="100000000" step="1000000" value="10000000" oninput="calcInf()"></div>' +
+        '<div class="calc-row"><div class="calc-label"><span>Annual inflation rate (%)</span><strong id="inf-rv">4%</strong></div>' +
+          '<input type="range" class="calc-slider" id="inf-r" min="1" max="15" step="0.5" value="4" oninput="calcInf()"></div>' +
+        '<div class="calc-row"><div class="calc-label"><span>Years</span><strong id="inf-yv">10 years</strong></div>' +
+          '<input type="range" class="calc-slider" id="inf-y" min="1" max="40" step="1" value="10" oninput="calcInf()"></div>' +
+        '<div class="calc-result" id="inf-result"></div>' +
+      '</div>';
+    calcInf();
+  } else if (cfg.type === 'dca') {
+    el.innerHTML =
+      '<div class="calc-box">' +
+        '<div class="calc-title">📅 Try It: DCA Monthly Investment Calculator</div>' +
+        '<div class="calc-row"><div class="calc-label"><span>Monthly investment</span><strong id="dca-mv">Rp 500 rb/bulan</strong></div>' +
+          '<input type="range" class="calc-slider" id="dca-m" min="100000" max="5000000" step="100000" value="500000" oninput="calcDCA()"></div>' +
+        '<div class="calc-row"><div class="calc-label"><span>Annual return (%)</span><strong id="dca-rv">10%</strong></div>' +
+          '<input type="range" class="calc-slider" id="dca-r" min="2" max="20" step="0.5" value="10" oninput="calcDCA()"></div>' +
+        '<div class="calc-row"><div class="calc-label"><span>Time horizon (years)</span><strong id="dca-yv">15 years</strong></div>' +
+          '<input type="range" class="calc-slider" id="dca-y" min="1" max="40" step="1" value="15" oninput="calcDCA()"></div>' +
+        '<div class="calc-result" id="dca-result"></div>' +
+      '</div>';
+    calcDCA();
+  }
+}
+
+function calcCI() {
+  var p = +document.getElementById('ci-p').value;
+  var r = +document.getElementById('ci-r').value / 100;
+  var y = +document.getElementById('ci-y').value;
+  document.getElementById('cv-p').textContent = fmtRp(p);
+  document.getElementById('cv-r').textContent = (r*100).toFixed(1) + '%';
+  document.getElementById('cv-y').textContent = y + ' years';
+  var fv = p * Math.pow(1 + r, y);
+  var gain = fv - p;
+  document.getElementById('ci-result').innerHTML =
+    '<div class="calc-result-item"><div class="calc-result-label">Final value</div><div class="calc-result-value">' + fmtRp(fv) + '</div><div class="calc-result-sub">after ' + y + ' years</div></div>' +
+    '<div class="calc-result-item"><div class="calc-result-label">Total gain</div><div class="calc-result-value">' + fmtRp(gain) + '</div><div class="calc-result-sub">(' + Math.round((fv/p-1)*100) + '% total return)</div></div>' +
+    '<div class="calc-result-item"><div class="calc-result-label">Money multiplied</div><div class="calc-result-value">' + (fv/p).toFixed(1) + '×</div><div class="calc-result-sub">Rule of 72: ' + Math.round(72/((r*100))) + ' yrs to double</div></div>';
+}
+function calcR72() {
+  var r = +document.getElementById('r72-r').value;
+  document.getElementById('r72-rv').textContent = r + '%';
+  var yrs = (72 / r).toFixed(1);
+  document.getElementById('r72-result').innerHTML =
+    '<div class="calc-result-item"><div class="calc-result-label">Years to double</div><div class="calc-result-value">' + yrs + ' yrs</div><div class="calc-result-sub">at ' + r + '% per year</div></div>' +
+    '<div class="calc-result-item"><div class="calc-result-label">10× growth needs</div><div class="calc-result-value">' + (Math.log(10)/Math.log(1+r/100)).toFixed(0) + ' yrs</div><div class="calc-result-sub">exact calculation</div></div>';
+}
+function calcInf() {
+  var p = +document.getElementById('inf-p').value;
+  var r = +document.getElementById('inf-r').value / 100;
+  var y = +document.getElementById('inf-y').value;
+  document.getElementById('inf-pv').textContent = fmtRp(p);
+  document.getElementById('inf-rv').textContent = (r*100).toFixed(1) + '%';
+  document.getElementById('inf-yv').textContent = y + ' years';
+  var futurePrice = p * Math.pow(1 + r, y);
+  var realValue   = p / Math.pow(1 + r, y);
+  document.getElementById('inf-result').innerHTML =
+    '<div class="calc-result-item"><div class="calc-result-label">Future price of same goods</div><div class="calc-result-value">' + fmtRp(futurePrice) + '</div><div class="calc-result-sub">in ' + y + ' yrs (cost inflation)</div></div>' +
+    '<div class="calc-result-item"><div class="calc-result-label">Real value of your money</div><div class="calc-result-value">' + fmtRp(realValue) + '</div><div class="calc-result-sub">in today\'s purchasing power</div></div>' +
+    '<div class="calc-result-item"><div class="calc-result-label">Power lost</div><div class="calc-result-value">' + Math.round((1 - realValue/p) * 100) + '%</div><div class="calc-result-sub">invest to beat this!</div></div>';
+}
+function calcDCA() {
+  var m = +document.getElementById('dca-m').value;
+  var r = +document.getElementById('dca-r').value / 100 / 12;
+  var n = +document.getElementById('dca-y').value * 12;
+  document.getElementById('dca-mv').textContent = fmtRp(m) + '/bln';
+  document.getElementById('dca-rv').textContent = (+document.getElementById('dca-r').value).toFixed(1) + '%';
+  document.getElementById('dca-yv').textContent = +document.getElementById('dca-y').value + ' years';
+  var fv = m * ((Math.pow(1 + r, n) - 1) / r) * (1 + r);
+  var invested = m * n;
+  document.getElementById('dca-result').innerHTML =
+    '<div class="calc-result-item"><div class="calc-result-label">Portfolio value</div><div class="calc-result-value">' + fmtRp(fv) + '</div><div class="calc-result-sub">total after ' + document.getElementById('dca-y').value + ' yrs</div></div>' +
+    '<div class="calc-result-item"><div class="calc-result-label">Total invested</div><div class="calc-result-value">' + fmtRp(invested) + '</div><div class="calc-result-sub">your own money</div></div>' +
+    '<div class="calc-result-item"><div class="calc-result-label">Investment gains</div><div class="calc-result-value">' + fmtRp(fv - invested) + '</div><div class="calc-result-sub">(' + Math.round((fv/invested - 1)*100) + '% total return)</div></div>';
+}
+
+/* ── Quiz module ─────────────────────────────────────────────── */
+var _quiz = { id: null, idx: 0, score: 0, answered: false };
+
+function buildQuiz(id) {
+  var el = document.getElementById('article-quiz');
+  var data = window.QUIZZES && window.QUIZZES[id];
+  if (!data || !data.questions || !data.questions.length) { el.innerHTML = ''; return; }
+  _quiz = { id: id, idx: 0, score: 0, answered: false };
+  renderQuizQuestion(el, data);
+}
+
+function renderQuizQuestion(el, data) {
+  var q = data.questions[_quiz.idx];
+  var total = data.questions.length;
+  _quiz.answered = false;
+  var opts = '';
+  q.options.forEach(function(o, i) {
+    opts += '<button class="quiz-opt" onclick="answerQuiz(' + i + ',' + q.correct + ')">' + escapeHtml(o) + '</button>';
+  });
+  el.innerHTML =
+    '<div class="quiz-module">' +
+      '<div class="quiz-header">' +
+        '<span class="quiz-icon">🧠</span>' +
+        '<span class="quiz-title">Quick Quiz — Test Yourself!</span>' +
+        '<span class="quiz-progress">Q' + (_quiz.idx+1) + ' / ' + total + '</span>' +
+      '</div>' +
+      '<div class="quiz-q-text">' + escapeHtml(q.q) + '</div>' +
+      '<div class="quiz-options" id="quiz-opts">' + opts + '</div>' +
+      '<div class="quiz-feedback" id="quiz-fb" style="display:none"></div>' +
+      '<div class="quiz-nav">' +
+        '<span class="quiz-score" id="quiz-score-disp">Score: ' + _quiz.score + '/' + _quiz.idx + '</span>' +
+        '<button class="quiz-nav-btn" id="quiz-next" onclick="nextQuizQ()" disabled>Next →</button>' +
+      '</div>' +
+    '</div>';
+}
+
+function answerQuiz(chosen, correct) {
+  if (_quiz.answered) return;
+  _quiz.answered = true;
+  var data = window.QUIZZES[_quiz.id];
+  var q = data.questions[_quiz.idx];
+  var opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(function(btn, i) {
+    btn.disabled = true;
+    if (i === correct) btn.classList.add('correct');
+    else if (i === chosen && chosen !== correct) btn.classList.add('wrong');
+  });
+  var correct_answer = (chosen === correct);
+  if (correct_answer) _quiz.score++;
+  var fb = document.getElementById('quiz-fb');
+  fb.className = 'quiz-feedback ' + (correct_answer ? 'correct' : 'wrong');
+  fb.innerHTML = (correct_answer ? '✅ Correct! ' : '❌ Not quite. ') + escapeHtml(q.exp);
+  fb.style.display = '';
+  var next = document.getElementById('quiz-next');
+  if (next) next.disabled = false;
+  var sd = document.getElementById('quiz-score-disp');
+  if (sd) sd.textContent = 'Score: ' + _quiz.score + '/' + (_quiz.idx+1);
+}
+
+function nextQuizQ() {
+  var data = window.QUIZZES[_quiz.id];
+  _quiz.idx++;
+  if (_quiz.idx >= data.questions.length) {
+    showQuizComplete();
+    return;
+  }
+  var el = document.getElementById('article-quiz');
+  renderQuizQuestion(el, data);
+}
+
+function showQuizComplete() {
+  var total = window.QUIZZES[_quiz.id].questions.length;
+  var pct = Math.round((_quiz.score / total) * 100);
+  var emoji = pct === 100 ? '🏆' : pct >= 67 ? '🌟' : pct >= 34 ? '📚' : '💪';
+  var msg = pct === 100 ? 'Perfect score! You truly understand this topic!' :
+            pct >= 67  ? 'Great work! Re-read the entry once more to master it.' :
+            pct >= 34  ? 'Good start! Read the article again carefully.' :
+                         'Keep going! Every expert started as a beginner.';
+  document.getElementById('article-quiz').innerHTML =
+    '<div class="quiz-module"><div class="quiz-complete">' +
+      '<div class="quiz-complete-emoji">' + emoji + '</div>' +
+      '<div class="quiz-complete-title">' + _quiz.score + ' / ' + total + ' correct (' + pct + '%)</div>' +
+      '<div class="quiz-complete-sub">' + escapeHtml(msg) + '</div>' +
+      '<button class="quiz-retry-btn" onclick="buildQuiz(\'' + _quiz.id + '\')">🔄 Try again</button>' +
+    '</div></div>';
+}
+
+/* ── Mark as read button ─────────────────────────────────────── */
+function buildMarkAsRead(id) {
+  var el = document.getElementById('article-mark-read');
+  var read = isRead(id);
+  el.innerHTML =
+    '<div class="mark-read-wrap">' +
+      '<button class="mark-read-btn' + (read ? ' done' : '') + '" onclick="toggleRead(\'' + id + '\')">' +
+        (read ? '✓ Marked as read' : '○ Mark as read') +
+      '</button>' +
+    '</div>';
+  var badge = document.getElementById('read-badge');
+  if (badge) badge.classList.toggle('visible', read);
+}
+function toggleRead(id) {
+  setRead(id, !isRead(id));
+}
+
+/* ── Augment showEntry with new panels ───────────────────────── */
+var _origShowEntry = showEntry;
+showEntry = function(id) {
+  _origShowEntry(id);
+  var entry = WIKI_DATA[id];
+  if (!entry) return;
+  // Reading time
+  var mins = estimateReadTime(entry.full || '');
+  var rtb = document.getElementById('reading-time-badge');
+  if (rtb) rtb.textContent = '📖 ' + mins + ' min read';
+  // ELI5
+  buildELI5(id);
+  // Calculator
+  buildCalculator(id);
+  // Quiz
+  buildQuiz(id);
+  // Mark as read
+  buildMarkAsRead(id);
+  // Interactive simulations — run after a tick so DOM is ready
+  setTimeout(function() { wSimInitAll(); }, 10);
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   INTERACTIVE SIMULATION ENGINE
+   Simulations are declared in wiki entry HTML as:
+     <div class="v-sim" data-type="compound"> ... </div>
+   Range inputs use: oninput="wSimUpdate(this)"
+   ═══════════════════════════════════════════════════════════════ */
+
+var _wSimFmt = {
+  rp: function(n) {
+    if (n >= 1e12) return 'Rp ' + (n/1e12).toFixed(1) + 'T';
+    if (n >= 1e9)  return 'Rp ' + (n/1e9).toFixed(1) + 'M';
+    if (n >= 1e6)  return 'Rp ' + (n/1e6).toFixed(1) + 'jt';
+    return 'Rp ' + n.toLocaleString();
+  },
+  pct: function(n) { return n.toFixed(1) + '%'; },
+  yr:  function(n) { return n.toFixed(1) + ' yrs'; }
+};
+
+function wSimUpdate(el) {
+  // Update the label value display
+  var lbl = el.previousElementSibling;
+  if (lbl && lbl.tagName === 'LABEL') {
+    var sp = lbl.querySelector('span');
+    if (sp) sp.textContent = el.dataset.fmt === 'pct' ? el.value + '%' : el.value;
+  }
+  // Find parent sim container and re-render
+  var sim = el.closest('.v-sim');
+  if (sim) wSimRender(sim);
+}
+
+function wSimInitAll() {
+  var sims = document.querySelectorAll('#article-content .v-sim[data-type]:not([data-inited])');
+  sims.forEach(function(sim) {
+    sim.setAttribute('data-inited', '1');
+    // init slider displays
+    sim.querySelectorAll('input[type=range]').forEach(function(inp) {
+      var lbl = inp.previousElementSibling;
+      if (lbl && lbl.tagName === 'LABEL') {
+        var sp = lbl.querySelector('span');
+        if (sp) sp.textContent = inp.dataset.fmt === 'pct' ? inp.value + '%' : inp.value;
+      }
+    });
+    wSimRender(sim);
+  });
+}
+
+function wSimRender(sim) {
+  var type = sim.dataset.type;
+  var inputs = {};
+  sim.querySelectorAll('input[type=range]').forEach(function(inp) {
+    inputs[inp.dataset.key] = parseFloat(inp.value);
+  });
+  var canvas = sim.querySelector('canvas.v-sim-canvas');
+  var metrics = sim.querySelector('.v-sim-metrics');
+
+  if (type === 'compound')       wSimCompound(canvas, metrics, inputs);
+  else if (type === 'inflation') wSimInflation(canvas, metrics, inputs);
+  else if (type === 'rule72')    wSimRule72(canvas, metrics, inputs);
+  else if (type === 'dca')       wSimDCA(canvas, metrics, inputs);
+  else if (type === 'loan')      wSimLoan(canvas, metrics, inputs);
+  else if (type === 'riskreturn')wSimRiskReturn(canvas, metrics, inputs);
+  else if (type === 'bondprice') wSimBondPrice(canvas, metrics, inputs);
+  else if (type === 'pe')        wSimPE(canvas, metrics, inputs);
+  else if (type === 'divgrowth') wSimDivGrowth(canvas, metrics, inputs);
+  else if (type === 'roe')       wSimROE(canvas, metrics, inputs);
+  else if (type === 'fxcarry')   wSimFXCarry(canvas, metrics, inputs);
+  else if (type === 'savings')   wSimSavings(canvas, metrics, inputs);
+}
+
+/* ── Shared Canvas Utilities ──────────────────────────────── */
+function wSimCtx(canvas) {
+  var dpr = window.devicePixelRatio || 1;
+  var w = canvas.clientWidth || canvas.offsetWidth || 560;
+  var h = 160;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.height = h + 'px';
+  var ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx._w = w; ctx._h = h;
+  return ctx;
+}
+
+function wSimGrid(ctx, cols, maxVal, padL, padR, padT, padB) {
+  var w = ctx._w - padL - padR;
+  var h = ctx._h - padT - padB;
+  ctx.strokeStyle = '#1e2a3a';
+  ctx.lineWidth = 1;
+  for (var i = 0; i <= 4; i++) {
+    var y = padT + h - (i/4) * h;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL+w, y); ctx.stroke();
+    ctx.fillStyle = '#4a5568';
+    ctx.font = '9px system-ui';
+    ctx.textAlign = 'right';
+    var lv = maxVal * i / 4;
+    ctx.fillText(lv >= 1e9 ? (lv/1e9).toFixed(0)+'M' : lv >= 1e6 ? (lv/1e6).toFixed(0)+'jt' : lv.toFixed(0), padL-3, y+3);
+  }
+}
+
+/* ── Compound Interest Simulation ─────────────────────────── */
+function wSimCompound(canvas, metrics, inp) {
+  var p = (inp.p || 10) * 1e6;
+  var r = (inp.r || 10) / 100;
+  var y = inp.y || 20;
+  var years = [], compound = [], simple = [];
+  var maxVal = 0;
+  for (var i = 0; i <= y; i++) {
+    years.push(i);
+    var c = p * Math.pow(1+r, i);
+    var s = p * (1 + r * i);
+    compound.push(c); simple.push(s);
+    if (c > maxVal) maxVal = c;
+  }
+  var finalC = compound[compound.length-1];
+  var finalS = simple[simple.length-1];
+  var gain = finalC - p;
+
+  if (metrics) {
+    metrics.innerHTML =
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(finalC) + '</div><div class="v-sim-metric-label">Compound Value</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(gain) + '</div><div class="v-sim-metric-label">Interest Earned</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + ((finalC/p).toFixed(1)) + '×</div><div class="v-sim-metric-label">Multiplier</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(finalS) + '</div><div class="v-sim-metric-label">Simple Interest</div></div>';
+  }
+  if (!canvas) return;
+  var ctx = wSimCtx(canvas);
+  var w = ctx._w, h = ctx._h, padL=48, padR=12, padT=10, padB=20;
+  var cw = w-padL-padR, ch = h-padT-padB;
+  ctx.clearRect(0,0,w,h);
+  wSimGrid(ctx, y, maxVal, padL, padR, padT, padB);
+  // Simple interest line (muted)
+  ctx.beginPath();
+  ctx.strokeStyle = '#4a5568'; ctx.lineWidth = 1.5; ctx.setLineDash([4,3]);
+  simple.forEach(function(v,i) {
+    var x = padL + (i/y)*cw, yy = padT + ch - (v/maxVal)*ch;
+    i===0 ? ctx.moveTo(x,yy) : ctx.lineTo(x,yy);
+  });
+  ctx.stroke(); ctx.setLineDash([]);
+  // Compound interest fill
+  var grad = ctx.createLinearGradient(0,padT,0,padT+ch);
+  grad.addColorStop(0,'rgba(56,189,248,.35)');
+  grad.addColorStop(1,'rgba(56,189,248,.02)');
+  ctx.beginPath();
+  compound.forEach(function(v,i) {
+    var x = padL + (i/y)*cw, yy = padT + ch - (v/maxVal)*ch;
+    i===0 ? ctx.moveTo(x,yy) : ctx.lineTo(x,yy);
+  });
+  ctx.lineTo(padL+cw, padT+ch); ctx.lineTo(padL, padT+ch); ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  // Line on top
+  ctx.beginPath();
+  ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2;
+  compound.forEach(function(v,i) {
+    var x = padL + (i/y)*cw, yy = padT + ch - (v/maxVal)*ch;
+    i===0 ? ctx.moveTo(x,yy) : ctx.lineTo(x,yy);
+  });
+  ctx.stroke();
+  // Legend
+  ctx.font = '9px system-ui'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#38bdf8'; ctx.fillRect(padL+cw-100, padT+5, 10, 2);
+  ctx.fillText('Compound', padL+cw-87, padT+9);
+  ctx.fillStyle = '#4a5568'; ctx.fillRect(padL+cw-100, padT+16, 10, 2);
+  ctx.fillText('Simple', padL+cw-87, padT+20);
+}
+
+/* ── Inflation Erosion Simulation ─────────────────────────── */
+function wSimInflation(canvas, metrics, inp) {
+  var p = (inp.p || 100) * 1e6;
+  var r = (inp.r || 3) / 100;
+  var y = inp.y || 20;
+  var years = [], vals = [];
+  for (var i = 0; i <= y; i++) {
+    vals.push(p * Math.pow(1-r, i));
+  }
+  var finalV = vals[vals.length-1];
+  var lost = p - finalV;
+
+  if (metrics) {
+    metrics.innerHTML =
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(p) + '</div><div class="v-sim-metric-label">Starting Value</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f87171">' + _wSimFmt.rp(finalV) + '</div><div class="v-sim-metric-label">Real Value After ' + y + ' Yrs</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f87171">−' + _wSimFmt.rp(lost) + '</div><div class="v-sim-metric-label">Purchasing Power Lost</div></div>';
+  }
+  if (!canvas) return;
+  var ctx = wSimCtx(canvas);
+  var w = ctx._w, h = ctx._h, padL=52, padR=12, padT=10, padB=20;
+  var cw = w-padL-padR, ch = h-padT-padB;
+  ctx.clearRect(0,0,w,h);
+  wSimGrid(ctx, y, p, padL, padR, padT, padB);
+  // Fill
+  var grad = ctx.createLinearGradient(0,padT,0,padT+ch);
+  grad.addColorStop(0,'rgba(248,113,113,.3)');
+  grad.addColorStop(1,'rgba(248,113,113,.03)');
+  ctx.beginPath();
+  vals.forEach(function(v,i) {
+    var x = padL + (i/y)*cw, yy = padT + ch - (v/p)*ch;
+    i===0 ? ctx.moveTo(x,yy) : ctx.lineTo(x,yy);
+  });
+  ctx.lineTo(padL+cw, padT+ch); ctx.lineTo(padL, padT+ch); ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  ctx.beginPath();
+  ctx.strokeStyle = '#f87171'; ctx.lineWidth = 2;
+  vals.forEach(function(v,i) {
+    var x = padL + (i/y)*cw, yy = padT + ch - (v/p)*ch;
+    i===0 ? ctx.moveTo(x,yy) : ctx.lineTo(x,yy);
+  });
+  ctx.stroke();
+}
+
+/* ── Rule of 72 Simulation ────────────────────────────────── */
+function wSimRule72(canvas, metrics, inp) {
+  var p = (inp.p || 10) * 1e6;
+  var r = inp.r || 8;
+  var doublings = Math.min(Math.ceil(40 / (72/r)), 8);
+  var vals = [];
+  for (var i = 0; i <= doublings; i++) vals.push(p * Math.pow(2,i));
+  var maxVal = vals[vals.length-1];
+  var yrsPerDouble = (72/r).toFixed(1);
+
+  if (metrics) {
+    metrics.innerHTML =
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + yrsPerDouble + '</div><div class="v-sim-metric-label">Years to Double</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(maxVal) + '</div><div class="v-sim-metric-label">After ' + doublings + ' Doublings</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + (Math.pow(2,doublings)) + '×</div><div class="v-sim-metric-label">Total Multiplier</div></div>';
+  }
+  if (!canvas) return;
+  var ctx = wSimCtx(canvas);
+  var w = ctx._w, h = ctx._h, padL=52, padR=12, padT=12, padB=22;
+  var cw = w-padL-padR, ch = h-padT-padB;
+  ctx.clearRect(0,0,w,h);
+  var bw = Math.max(cw / vals.length - 4, 8);
+  vals.forEach(function(v, i) {
+    var x = padL + i * (cw/vals.length) + (cw/vals.length - bw)/2;
+    var bh = (v/maxVal) * ch;
+    var y = padT + ch - bh;
+    var grad = ctx.createLinearGradient(0,y,0,y+bh);
+    grad.addColorStop(0,'#38bdf8'); grad.addColorStop(1,'#0284c7');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    var rx = 4;
+    ctx.moveTo(x+rx, y); ctx.lineTo(x+bw-rx, y);
+    ctx.quadraticCurveTo(x+bw, y, x+bw, y+rx);
+    ctx.lineTo(x+bw, y+bh); ctx.lineTo(x, y+bh); ctx.lineTo(x, y+rx);
+    ctx.quadraticCurveTo(x, y, x+rx, y); ctx.closePath();
+    ctx.fill();
+    ctx.font = '9px system-ui'; ctx.textAlign = 'center'; ctx.fillStyle = '#94a3b8';
+    ctx.fillText((i*(72/r)).toFixed(0)+'y', x + bw/2, padT+ch+14);
+  });
+}
+
+/* ── DCA Simulation ───────────────────────────────────────── */
+function wSimDCA(canvas, metrics, inp) {
+  var monthly = (inp.m || 1) * 1e6;
+  var r = (inp.r || 10) / 100 / 12;
+  var months = (inp.y || 20) * 12;
+  var totalInvested = monthly * months;
+  var fv = monthly * (Math.pow(1+r, months) - 1) / r;
+  var gain = fv - totalInvested;
+
+  // Monthly balance over time
+  var bals = [], invested = [];
+  var bal = 0, inv = 0;
+  for (var m = 0; m <= months; m += Math.max(1, Math.floor(months/60))) {
+    bals.push(monthly * (Math.pow(1+r, m) - 1) / r);
+    invested.push(monthly * m);
+  }
+  var maxVal = fv;
+
+  if (metrics) {
+    metrics.innerHTML =
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(fv) + '</div><div class="v-sim-metric-label">Final Value</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(totalInvested) + '</div><div class="v-sim-metric-label">Total Invested</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + _wSimFmt.rp(gain) + '</div><div class="v-sim-metric-label">Gains</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + (fv/totalInvested).toFixed(1) + '×</div><div class="v-sim-metric-label">Return Multiple</div></div>';
+  }
+  if (!canvas) return;
+  var ctx = wSimCtx(canvas);
+  var w = ctx._w, h = ctx._h, padL=52, padR=12, padT=10, padB=20;
+  var cw = w-padL-padR, ch = h-padT-padB;
+  ctx.clearRect(0,0,w,h);
+  wSimGrid(ctx, bals.length-1, maxVal, padL, padR, padT, padB);
+  var pts = bals.length;
+  // Invested area
+  var gradI = ctx.createLinearGradient(0,padT,0,padT+ch);
+  gradI.addColorStop(0,'rgba(251,191,36,.25)'); gradI.addColorStop(1,'rgba(251,191,36,.05)');
+  ctx.beginPath();
+  invested.forEach(function(v,i) {
+    var x = padL + (i/(pts-1))*cw, yy = padT + ch - (v/maxVal)*ch;
+    i===0 ? ctx.moveTo(x,yy) : ctx.lineTo(x,yy);
+  });
+  ctx.lineTo(padL+cw, padT+ch); ctx.lineTo(padL, padT+ch); ctx.closePath();
+  ctx.fillStyle = gradI; ctx.fill();
+  // Balance area
+  var gradB = ctx.createLinearGradient(0,padT,0,padT+ch);
+  gradB.addColorStop(0,'rgba(74,222,128,.4)'); gradB.addColorStop(1,'rgba(74,222,128,.05)');
+  ctx.beginPath();
+  bals.forEach(function(v,i) {
+    var x = padL + (i/(pts-1))*cw, yy = padT + ch - (v/maxVal)*ch;
+    i===0 ? ctx.moveTo(x,yy) : ctx.lineTo(x,yy);
+  });
+  ctx.lineTo(padL+cw, padT+ch); ctx.lineTo(padL, padT+ch); ctx.closePath();
+  ctx.fillStyle = gradB; ctx.fill();
+  // Lines
+  [[bals,'#4ade80',2],[invested,'#fbbf24',1.5]].forEach(function(series) {
+    ctx.beginPath(); ctx.strokeStyle = series[1]; ctx.lineWidth = series[2]; ctx.setLineDash([]);
+    series[0].forEach(function(v,i) {
+      var x = padL + (i/(pts-1))*cw, yy = padT + ch - (v/maxVal)*ch;
+      i===0 ? ctx.moveTo(x,yy) : ctx.lineTo(x,yy);
+    });
+    ctx.stroke();
+  });
+  ctx.font = '9px system-ui'; ctx.textAlign='left';
+  ctx.fillStyle='#4ade80'; ctx.fillText('Portfolio value',padL+4,padT+14);
+  ctx.fillStyle='#fbbf24'; ctx.fillText('Amount invested',padL+4,padT+26);
+}
+
+/* ── Loan Cost Simulation ─────────────────────────────────── */
+function wSimLoan(canvas, metrics, inp) {
+  var principal = (inp.p || 500) * 1e6;
+  var rate = (inp.r || 5.25) / 100 / 12;
+  var months = (inp.y || 20) * 12;
+  var monthly = principal * rate * Math.pow(1+rate,months) / (Math.pow(1+rate,months)-1);
+  var totalPaid = monthly * months;
+  var totalInterest = totalPaid - principal;
+
+  var balances = [], interestPaid = [];
+  var bal = principal;
+  for (var m = 0; m <= months; m += Math.max(1,Math.floor(months/50))) {
+    balances.push(bal);
+    interestPaid.push(totalPaid - bal - (principal - bal));
+    var int = bal * rate;
+    var princ = monthly - int;
+    for (var j = 0; j < Math.max(1,Math.floor(months/50)); j++) bal -= monthly - bal*rate;
+    if (bal < 0) bal = 0;
+  }
+
+  if (metrics) {
+    metrics.innerHTML =
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(monthly) + '</div><div class="v-sim-metric-label">Monthly Payment</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(totalPaid) + '</div><div class="v-sim-metric-label">Total Paid</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f87171">' + _wSimFmt.rp(totalInterest) + '</div><div class="v-sim-metric-label">Interest Cost</div></div>';
+  }
+  if (!canvas) return;
+  var ctx = wSimCtx(canvas);
+  var w = ctx._w, h = ctx._h, padL=52, padR=12, padT=10, padB=20;
+  var cw = w-padL-padR, ch = h-padT-padB;
+  ctx.clearRect(0,0,w,h);
+  wSimGrid(ctx, balances.length-1, principal, padL, padR, padT, padB);
+  var pts = balances.length;
+  var grad = ctx.createLinearGradient(0,padT,0,padT+ch);
+  grad.addColorStop(0,'rgba(56,189,248,.35)'); grad.addColorStop(1,'rgba(56,189,248,.03)');
+  ctx.beginPath();
+  balances.forEach(function(v,i) {
+    var x = padL + (i/(pts-1))*cw, yy = padT + ch - (v/principal)*ch;
+    i===0 ? ctx.moveTo(x,yy) : ctx.lineTo(x,yy);
+  });
+  ctx.lineTo(padL+cw, padT+ch); ctx.lineTo(padL, padT+ch); ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  ctx.beginPath(); ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2;
+  balances.forEach(function(v,i) {
+    var x = padL + (i/(pts-1))*cw, yy = padT + ch - (v/principal)*ch;
+    i===0 ? ctx.moveTo(x,yy) : ctx.lineTo(x,yy);
+  });
+  ctx.stroke();
+}
+
+/* ── Risk-Return Scatter ──────────────────────────────────── */
+function wSimRiskReturn(canvas, metrics, inp) {
+  if (!canvas) return;
+  var ctx = wSimCtx(canvas);
+  var w = ctx._w, h = ctx._h, padL=40, padR=12, padT=12, padB=24;
+  var cw = w-padL-padR, ch = h-padT-padB;
+  ctx.clearRect(0,0,w,h);
+  // Axes
+  ctx.strokeStyle = '#1e2a3a'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,padT+ch); ctx.lineTo(padL+cw,padT+ch); ctx.stroke();
+  ctx.fillStyle = '#4a5568'; ctx.font = '9px system-ui';
+  ctx.textAlign = 'center'; ctx.fillText('Risk (volatility) →', padL+cw/2, padT+ch+18);
+  ctx.save(); ctx.translate(12, padT+ch/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Return →', 0, 0); ctx.restore();
+  // Efficient frontier curve
+  var pts = [];
+  for (var i = 0; i <= 40; i++) pts.push({ risk: i, ret: 2 + Math.pow(i*0.6, 0.65) });
+  ctx.beginPath(); ctx.strokeStyle = '#38bdf840'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+  pts.forEach(function(p,i) {
+    var x = padL + (p.risk/40)*cw, y = padT + ch - (p.ret/22)*ch;
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.stroke(); ctx.setLineDash([]);
+  // Asset dots
+  var assets = [
+    {name:'Cash', risk:0.5, ret:3.5, color:'#94a3b8'},
+    {name:'RD Pasar\nUang', risk:1, ret:5, color:'#38bdf8'},
+    {name:'ORI', risk:3, ret:6.9, color:'#4ade80'},
+    {name:'Bonds', risk:7, ret:9, color:'#a78bfa'},
+    {name:'LQ45', risk:20, ret:13, color:'#f59e0b'},
+    {name:'S&P500', risk:16, ret:10, color:'#3b82f6'},
+    {name:'Small\nCap', risk:35, ret:18, color:'#f87171'},
+    {name:'Crypto', risk:70, ret:25, color:'#ec4899'},
+  ];
+  assets.forEach(function(a) {
+    var x = padL + (a.risk/70)*cw;
+    var y = padT + ch - (a.ret/30)*ch;
+    ctx.beginPath(); ctx.arc(x, y, 5, 0, 2*Math.PI);
+    ctx.fillStyle = a.color; ctx.fill();
+    ctx.font = '9px system-ui'; ctx.fillStyle = a.color; ctx.textAlign = 'center';
+    var lines = a.name.split('\n');
+    lines.forEach(function(line, li) { ctx.fillText(line, x, y - 8 - (lines.length-1-li)*10); });
+  });
+}
+
+/* ── Bond Price vs Yield ──────────────────────────────────── */
+function wSimBondPrice(canvas, metrics, inp) {
+  // keys: yield (current yield%), yieldChange (±bps shift), faceValue/face, duration/years, coupon
+  var baseYield = parseFloat(inp.yield || inp.yieldChange || 5);
+  var maturity   = parseInt(inp.duration || inp.years || 10);
+  var coupon     = parseFloat(inp.coupon || baseYield);       // default coupon = current yield → par
+  var face       = parseFloat(inp.faceValue || inp.face || 100);
+
+  // bond price function
+  function bondPx(y) {
+    var px = 0;
+    for (var t = 1; t <= maturity; t++) px += (coupon * face/100) / Math.pow(1+y/100, t);
+    px += face / Math.pow(1+y/100, maturity);
+    return px;
+  }
+
+  var curPx = bondPx(baseYield);
+  var modDur = 0;
+  for (var t = 1; t <= maturity; t++) modDur += t * (coupon*face/100) / Math.pow(1+baseYield/100, t);
+  modDur = (modDur + maturity*face/Math.pow(1+baseYield/100,maturity)) / curPx / (1+baseYield/100);
+
+  if (metrics) {
+    var chgUp = bondPx(baseYield+1) - curPx;
+    var chgDn = bondPx(baseYield-1) - curPx;
+    metrics.innerHTML =
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + curPx.toFixed(2) + '</div><div class="v-sim-metric-label">Bond Price</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:'+(curPx>=face?'#4ade80':'#f87171')+'">' + (curPx>=face?'+':'') + (curPx-face).toFixed(2) + '</div><div class="v-sim-metric-label">vs Par</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + modDur.toFixed(1) + ' yr</div><div class="v-sim-metric-label">Duration</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f87171">' + chgUp.toFixed(2) + '</div><div class="v-sim-metric-label">Price if +1%</div></div>';
+  }
+  if (!canvas) return;
+  var ctx = wSimCtx(canvas);
+  var w = ctx._w, h = ctx._h, padL=52, padR=14, padT=12, padB=24;
+  var cw = w-padL-padR, ch = h-padT-padB;
+  ctx.clearRect(0,0,w,h);
+
+  var yMin = Math.max(0.5, baseYield-4), yMax = baseYield+4, nPts = 60;
+  var prices = [];
+  for (var i = 0; i <= nPts; i++) prices.push(bondPx(yMin + (yMax-yMin)*i/nPts));
+  var pMin = Math.min.apply(null,prices), pMax = Math.max.apply(null,prices);
+
+  wSimGrid(ctx, 4, pMax, padL, padR, padT, padB);
+
+  // Fill gradient under curve
+  var grad = ctx.createLinearGradient(0,padT,0,padT+ch);
+  grad.addColorStop(0,'rgba(56,189,248,.25)'); grad.addColorStop(1,'rgba(56,189,248,.02)');
+  ctx.beginPath();
+  prices.forEach(function(p,i) {
+    var x = padL+i/nPts*cw, yy = padT+ch-(p-pMin)/(pMax-pMin)*ch;
+    i===0 ? ctx.moveTo(x,yy) : ctx.lineTo(x,yy);
+  });
+  ctx.lineTo(padL+cw,padT+ch); ctx.lineTo(padL,padT+ch); ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+
+  // Curve line
+  ctx.beginPath(); ctx.strokeStyle='#38bdf8'; ctx.lineWidth=2;
+  prices.forEach(function(p,i) {
+    var x=padL+i/nPts*cw, yy=padT+ch-(p-pMin)/(pMax-pMin)*ch;
+    i===0 ? ctx.moveTo(x,yy) : ctx.lineTo(x,yy);
+  });
+  ctx.stroke();
+
+  // Current yield dot
+  var curIdx = (baseYield-yMin)/(yMax-yMin)*nPts;
+  var cx2 = padL+curIdx/nPts*cw, cy = padT+ch-(curPx-pMin)/(pMax-pMin)*ch;
+  ctx.beginPath(); ctx.arc(cx2,cy,5,0,2*Math.PI);
+  ctx.fillStyle='#f59e0b'; ctx.fill();
+  ctx.strokeStyle='#fff'; ctx.lineWidth=1; ctx.stroke();
+
+  // Par value line
+  var parY = padT+ch-(face-pMin)/(pMax-pMin)*ch;
+  ctx.setLineDash([3,3]); ctx.strokeStyle='#4a5568'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(padL,parY); ctx.lineTo(padL+cw,parY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle='#4a5568'; ctx.font='9px system-ui'; ctx.textAlign='center';
+  ctx.fillText('Yield % →', padL+cw/2, padT+ch+18);
+  ctx.save(); ctx.translate(12,padT+ch/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText('Bond Price', 0, 0); ctx.restore();
+}
+
+/* ── P/E Growth Projection ────────────────────────────────── */
+function wSimPE(canvas, metrics, inp) {
+  // keys: eps (current EPS), growth (annual EPS growth%), pe (P/E multiple), years, fair/mos
+  var eps    = parseFloat(inp.eps || inp.price || 100);
+  var growth = parseFloat(inp.growth || inp.r || 10);
+  var peRatio = parseFloat(inp.pe || inp.fair || 15);
+  var years  = parseInt(inp.years || inp.y || 10);
+
+  var curPrice = eps * peRatio;
+  var finalEPS = eps * Math.pow(1+growth/100, years);
+  var finalPrice = finalEPS * peRatio;
+  var cagr = (Math.pow(finalPrice/curPrice, 1/years)-1)*100;
+
+  if (metrics) {
+    metrics.innerHTML =
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + eps.toFixed(0) + '</div><div class="v-sim-metric-label">Current EPS</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + finalEPS.toFixed(0) + '</div><div class="v-sim-metric-label">EPS Y'+years+'</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + _wSimFmt.rp(curPrice) + '</div><div class="v-sim-metric-label">Price Now</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + _wSimFmt.rp(finalPrice) + '</div><div class="v-sim-metric-label">Price Y'+years+'</div></div>';
+  }
+  if (!canvas) return;
+  var ctx = wSimCtx(canvas);
+  var w = ctx._w, h = ctx._h, padL=52, padR=14, padT=12, padB=24;
+  var cw = w-padL-padR, ch = h-padT-padB;
+  ctx.clearRect(0,0,w,h);
+
+  var bars = [];
+  for (var i = 0; i <= years; i++) bars.push(eps * Math.pow(1+growth/100,i) * peRatio);
+  var maxV = Math.max.apply(null,bars);
+  wSimGrid(ctx, 4, maxV, padL, padR, padT, padB);
+
+  var bGap = cw/(years+1), bw = bGap*0.65;
+  bars.forEach(function(price,i) {
+    var x = padL + i*bGap + bGap*0.175;
+    var bh = price/maxV*ch;
+    var grad = ctx.createLinearGradient(x,padT+ch-bh,x,padT+ch);
+    grad.addColorStop(0,'#818cf8'); grad.addColorStop(1,'#4c1d95');
+    ctx.fillStyle = grad; ctx.fillRect(x, padT+ch-bh, bw, bh);
+    if (i % Math.max(1,Math.floor(years/5)) === 0) {
+      ctx.fillStyle='#4a5568'; ctx.font='8px system-ui'; ctx.textAlign='center';
+      ctx.fillText('Y'+i, x+bw/2, padT+ch+14);
+    }
+  });
+
+  ctx.fillStyle='#4a5568'; ctx.font='9px system-ui'; ctx.textAlign='center';
+  ctx.fillText('CAGR: +'+cagr.toFixed(1)+'%', padL+cw*0.75, padT+14);
+}
+
+/* ── Dividend Growth Simulator ────────────────────────────── */
+function wSimDivGrowth(canvas, metrics, inp) {
+  // keys: principal/lots (initial Rp juta invested), yield/div (initial yield%), growth (annual div growth%), years
+  var principal = parseFloat(inp.principal || inp.lots || 100) * 1e6;  // in Rp
+  var yieldPct  = parseFloat(inp.yield || inp.div || 5);
+  var growPct   = parseFloat(inp.growth || 8);
+  var years     = parseInt(inp.years || 20);
+
+  var annualDiv = principal * yieldPct/100;
+  var cumDiv = 0, totalPortfolio = principal;
+  var cumDivArr = [0], portArr = [principal];
+
+  for (var i = 1; i <= years; i++) {
+    var d = annualDiv * Math.pow(1+growPct/100, i-1);
+    cumDiv += d;
+    cumDivArr.push(cumDiv);
+    portArr.push(principal + cumDiv);
+  }
+
+  var maxV = portArr[portArr.length-1];
+  var finalYield = (annualDiv * Math.pow(1+growPct/100,years-1)) / principal * 100;
+
+  if (metrics) {
+    metrics.innerHTML =
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(principal) + '</div><div class="v-sim-metric-label">Invested</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + _wSimFmt.rp(cumDiv) + '</div><div class="v-sim-metric-label">Total Dividends</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(portArr[years]) + '</div><div class="v-sim-metric-label">Portfolio Value</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f59e0b">' + finalYield.toFixed(1) + '%</div><div class="v-sim-metric-label">Yield Y'+years+'</div></div>';
+  }
+  if (!canvas) return;
+  var ctx = wSimCtx(canvas);
+  var w = ctx._w, h = ctx._h, padL=52, padR=14, padT=12, padB=20;
+  var cw = w-padL-padR, ch = h-padT-padB;
+  ctx.clearRect(0,0,w,h);
+  wSimGrid(ctx, 4, maxV, padL, padR, padT, padB);
+
+  // Dividend area (green fill)
+  ctx.beginPath(); ctx.moveTo(padL, padT+ch);
+  cumDivArr.forEach(function(v,i){ ctx.lineTo(padL+i/years*cw, padT+ch-v/maxV*ch); });
+  ctx.lineTo(padL+cw,padT+ch); ctx.closePath();
+  ctx.fillStyle='rgba(74,222,128,.15)'; ctx.fill();
+
+  // Total portfolio line
+  var grad = ctx.createLinearGradient(0,padT,0,padT+ch);
+  grad.addColorStop(0,'rgba(56,189,248,.3)'); grad.addColorStop(1,'rgba(56,189,248,.03)');
+  ctx.beginPath();
+  portArr.forEach(function(v,i){ i===0?ctx.moveTo(padL,padT+ch-v/maxV*ch):ctx.lineTo(padL+i/years*cw,padT+ch-v/maxV*ch); });
+  ctx.lineTo(padL+cw,padT+ch); ctx.lineTo(padL,padT+ch); ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+
+  ctx.beginPath(); ctx.strokeStyle='#38bdf8'; ctx.lineWidth=2;
+  portArr.forEach(function(v,i){ i===0?ctx.moveTo(padL,padT+ch-v/maxV*ch):ctx.lineTo(padL+i/years*cw,padT+ch-v/maxV*ch); });
+  ctx.stroke();
+
+  ctx.font='9px system-ui'; ctx.textAlign='left';
+  ctx.fillStyle='#38bdf8'; ctx.fillText('Portfolio value', padL+4, padT+12);
+  ctx.fillStyle='#4ade80'; ctx.fillText('Cumulative dividends', padL+4, padT+24);
+}
+
+/* ── ROE DuPont Decomposition ─────────────────────────────── */
+function wSimROE(canvas, metrics, inp) {
+  // keys: income (net profit Rp juta), equity (shareholders equity Rp juta), revenue, assets
+  var income   = Math.max(0.1, parseFloat(inp.income  || 200));
+  var equity   = Math.max(0.1, parseFloat(inp.equity  || 1000));
+  var revenue  = Math.max(0.1, parseFloat(inp.revenue || 2000));
+  var assets   = Math.max(0.1, parseFloat(inp.assets  || 2500));
+
+  var roe      = income/equity*100;
+  var margin   = income/revenue*100;
+  var turnover = revenue/assets;
+  var leverage = assets/equity;
+
+  if (metrics) {
+    metrics.innerHTML =
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#818cf8">' + roe.toFixed(1) + '%</div><div class="v-sim-metric-label">ROE</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#38bdf8">' + margin.toFixed(1) + '%</div><div class="v-sim-metric-label">Net Margin</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + turnover.toFixed(2) + '×</div><div class="v-sim-metric-label">Asset Turnover</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f59e0b">' + leverage.toFixed(1) + '×</div><div class="v-sim-metric-label">Leverage</div></div>';
+  }
+  if (!canvas) return;
+  var ctx = wSimCtx(canvas);
+  var w = ctx._w, h = ctx._h, padL=14, padR=14, padT=28, padB=22;
+  var cw = w-padL-padR, ch = h-padT-padB;
+  ctx.clearRect(0,0,w,h);
+
+  var parts = [
+    {label:'Net Margin',val:margin,  unit:'%', color:'#38bdf8'},
+    {label:'× Asset Turn',val:turnover,unit:'×', color:'#4ade80'},
+    {label:'× Leverage', val:leverage,unit:'×', color:'#f59e0b'},
+    {label:'= ROE',       val:roe,    unit:'%', color:'#818cf8'}
+  ];
+  var maxVal = Math.max.apply(null, parts.map(function(p){return Math.abs(p.val);}));
+  var bGap = cw/parts.length, bw = bGap*0.6;
+
+  parts.forEach(function(p,i) {
+    var relH = (Math.abs(p.val)/maxVal) * (ch-16);
+    var x = padL + i*bGap + bGap*0.2;
+
+    // Background track
+    ctx.fillStyle = p.color+'20';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(x, padT, bw, ch-16, 4) : ctx.rect(x, padT, bw, ch-16);
+    ctx.fill();
+
+    // Value fill
+    var grad = ctx.createLinearGradient(x,padT+ch-16-relH,x,padT+ch-16);
+    grad.addColorStop(0, p.color);
+    grad.addColorStop(1, p.color+'80');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(x, padT+ch-16-relH, bw, relH, 4) : ctx.rect(x, padT+ch-16-relH, bw, relH);
+    ctx.fill();
+
+    // Value label above bar
+    ctx.fillStyle = p.color; ctx.font = 'bold 11px system-ui'; ctx.textAlign='center';
+    ctx.fillText(p.val.toFixed(p.unit==='×'?2:1)+p.unit, x+bw/2, padT+ch-16-relH-4);
+
+    // Name below bar
+    ctx.fillStyle='#6b7280'; ctx.font='9px system-ui';
+    ctx.fillText(p.label, x+bw/2, padT+ch+8);
+
+    // Separator × signs
+    if (i < parts.length-1 && i !== parts.length-2) {
+      ctx.fillStyle='#4a5568'; ctx.font='14px system-ui';
+      ctx.fillText('×', padL+i*bGap+bGap-2, padT+ch/2);
+    }
+  });
+
+  // Title
+  ctx.fillStyle='#818cf8'; ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+  ctx.fillText('DuPont: Margin × Turnover × Leverage = ROE', padL+cw/2, padT-10);
+}
+
+/* ── FX Carry Trade Simulator ─────────────────────────────── */
+function wSimFXCarry(canvas, metrics, inp) {
+  // keys: rateA (high-yield rate%), rateB (funding rate%), spot (exchange rate), principal (USD)
+  var rateA     = parseFloat(inp.rateA || 5.75);   // BI Rate or similar
+  var rateB     = parseFloat(inp.rateB || 4.25);   // Fed Rate or similar
+  var spot      = parseFloat(inp.spot  || 16000);  // USD/IDR or similar
+  var principal = parseFloat(inp.principal || 1000); // USD
+  var months    = parseInt(inp.months || 60);
+
+  var spread    = (rateA - rateB)/100;
+  var monthlyRate = spread/12;
+
+  // Simulate: positive spread scenario vs FX depreciation risk
+  var grossCarry = [], fxAdjusted = [];
+  var cumCarry = 0, fxRisk = 0;
+  grossCarry.push(0); fxAdjusted.push(0);
+
+  for (var i = 1; i <= months; i++) {
+    cumCarry = principal * (Math.pow(1+spread/12, i) - 1);
+    // Simulate 3% annual FX depreciation drag
+    var fxDrag = principal * (1 - Math.pow(1-0.03/12, i));
+    fxAdjusted.push(Math.max(-principal*0.2, cumCarry - fxDrag));
+    grossCarry.push(cumCarry);
+  }
+
+  var maxV = Math.max.apply(null, grossCarry);
+  var minV = Math.min(0, Math.min.apply(null, fxAdjusted));
+  var range = maxV - minV;
+
+  if (metrics) {
+    var finalGross = grossCarry[months];
+    var finalFX    = fxAdjusted[months];
+    metrics.innerHTML =
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:'+(spread>0?'#4ade80':'#f87171')+'">' + (spread>0?'+':'') + (spread*100).toFixed(2) + '%</div><div class="v-sim-metric-label">Rate Spread</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">+$' + finalGross.toFixed(0) + '</div><div class="v-sim-metric-label">Gross Carry Gain</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:'+(finalFX>=0?'#f59e0b':'#f87171')+'">' + (finalFX>=0?'+':'') + '$' + finalFX.toFixed(0) + '</div><div class="v-sim-metric-label">After FX Risk</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + spot.toLocaleString() + '</div><div class="v-sim-metric-label">Spot Rate</div></div>';
+  }
+  if (!canvas) return;
+  var ctx = wSimCtx(canvas);
+  var w = ctx._w, h = ctx._h, padL=52, padR=14, padT=12, padB=24;
+  var cw = w-padL-padR, ch = h-padT-padB;
+  ctx.clearRect(0,0,w,h);
+  wSimGrid(ctx, 4, maxV, padL, padR, padT, padB);
+
+  // Zero line
+  var zeroY = padT + ch - (0-minV)/range*ch;
+  ctx.setLineDash([3,3]); ctx.strokeStyle='#4a5568'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(padL,zeroY); ctx.lineTo(padL+cw,zeroY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Gross carry — green area
+  var gGrad = ctx.createLinearGradient(0,padT,0,padT+ch);
+  gGrad.addColorStop(0,'rgba(74,222,128,.3)'); gGrad.addColorStop(1,'rgba(74,222,128,.03)');
+  ctx.beginPath();
+  grossCarry.forEach(function(v,i){ var y=padT+ch-(v-minV)/range*ch; i===0?ctx.moveTo(padL,y):ctx.lineTo(padL+i/months*cw,y); });
+  ctx.lineTo(padL+cw,zeroY); ctx.lineTo(padL,zeroY); ctx.closePath();
+  ctx.fillStyle=gGrad; ctx.fill();
+
+  ctx.beginPath(); ctx.strokeStyle='#4ade80'; ctx.lineWidth=2;
+  grossCarry.forEach(function(v,i){ var y=padT+ch-(v-minV)/range*ch; i===0?ctx.moveTo(padL,y):ctx.lineTo(padL+i/months*cw,y); });
+  ctx.stroke();
+
+  // FX-adjusted — dashed red
+  ctx.beginPath(); ctx.strokeStyle='#f87171'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+  fxAdjusted.forEach(function(v,i){ var y=padT+ch-(v-minV)/range*ch; i===0?ctx.moveTo(padL,y):ctx.lineTo(padL+i/months*cw,y); });
+  ctx.stroke(); ctx.setLineDash([]);
+
+  ctx.font='9px system-ui'; ctx.textAlign='left';
+  ctx.fillStyle='#4ade80'; ctx.fillText('Gross carry', padL+4, padT+12);
+  ctx.fillStyle='#f87171'; ctx.fillText('After FX risk', padL+4, padT+24);
+}
+
+/* ── Savings / Investment Goal Planner ────────────────────── */
+function wSimSavings(canvas, metrics, inp) {
+  // keys: principal (initial Rp juta), monthly/m (monthly Rp juta), rate/r (annual %), years/y
+  var principal = parseFloat(inp.principal || 0) * 1e6;
+  var monthly   = parseFloat(inp.monthly || inp.m || 1) * 1e6;
+  var annualRate = parseFloat(inp.rate || inp.r || 7);
+  var years     = parseInt(inp.years || inp.y || 20);
+  var mRate     = annualRate/100/12;
+  var months    = years*12;
+
+  var portVals = [principal], invested = [principal];
+  var port = principal;
+  for (var i = 1; i <= months; i++) {
+    port = port*(1+mRate) + monthly;
+    portVals.push(port);
+    invested.push(principal + monthly*i);
+  }
+  var maxV = portVals[portVals.length-1];
+  var totalInvested = invested[months];
+  var gain = port - totalInvested;
+
+  if (metrics) {
+    metrics.innerHTML =
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(totalInvested) + '</div><div class="v-sim-metric-label">Total Invested</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#818cf8">' + _wSimFmt.rp(port) + '</div><div class="v-sim-metric-label">Final Value</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + _wSimFmt.rp(gain) + '</div><div class="v-sim-metric-label">Interest Earned</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + (port/totalInvested).toFixed(1) + '×</div><div class="v-sim-metric-label">Multiplier</div></div>';
+  }
+  if (!canvas) return;
+  var ctx = wSimCtx(canvas);
+  var w = ctx._w, h = ctx._h, padL=52, padR=14, padT=12, padB=20;
+  var cw = w-padL-padR, ch = h-padT-padB;
+  ctx.clearRect(0,0,w,h);
+  wSimGrid(ctx, 4, maxV, padL, padR, padT, padB);
+
+  // Invested area (grey)
+  ctx.beginPath();
+  invested.forEach(function(v,i){ i===0?ctx.moveTo(padL,padT+ch-v/maxV*ch):ctx.lineTo(padL+i/months*cw,padT+ch-v/maxV*ch); });
+  ctx.lineTo(padL+cw,padT+ch); ctx.lineTo(padL,padT+ch); ctx.closePath();
+  ctx.fillStyle='rgba(100,116,139,.2)'; ctx.fill();
+
+  // Portfolio gradient area
+  var grad = ctx.createLinearGradient(0,padT,0,padT+ch);
+  grad.addColorStop(0,'rgba(129,140,248,.4)'); grad.addColorStop(1,'rgba(129,140,248,.04)');
+  ctx.beginPath();
+  portVals.forEach(function(v,i){ i===0?ctx.moveTo(padL,padT+ch-v/maxV*ch):ctx.lineTo(padL+i/months*cw,padT+ch-v/maxV*ch); });
+  ctx.lineTo(padL+cw,padT+ch); ctx.lineTo(padL,padT+ch); ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+
+  // Portfolio line
+  ctx.beginPath(); ctx.strokeStyle='#818cf8'; ctx.lineWidth=2.5;
+  portVals.forEach(function(v,i){ i===0?ctx.moveTo(padL,padT+ch-v/maxV*ch):ctx.lineTo(padL+i/months*cw,padT+ch-v/maxV*ch); });
+  ctx.stroke();
+
+  // Invested line (dashed)
+  ctx.beginPath(); ctx.strokeStyle='#6b7280'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+  invested.forEach(function(v,i){ i===0?ctx.moveTo(padL,padT+ch-v/maxV*ch):ctx.lineTo(padL+i/months*cw,padT+ch-v/maxV*ch); });
+  ctx.stroke(); ctx.setLineDash([]);
+
+  ctx.font='9px system-ui'; ctx.textAlign='left';
+  ctx.fillStyle='#818cf8'; ctx.fillText('Portfolio value', padL+4, padT+12);
+  ctx.fillStyle='#94a3b8'; ctx.fillText('Amount invested', padL+4, padT+24);
+}
+
+/* ── Initialise ───────────────────────────────────────────── */
+(function init() {
+  buildSidebar();
+  buildCatCards();
+  setupKeyboard();
+  updateSidebarProgress();
+
+  // Search input handler — debounced FTS5 API call
+  document.getElementById('wiki-search').addEventListener('input', function() {
+    debounceSearch(this.value);
+  });
+
+  // URL hash navigation on load
+  var hash = location.hash.replace('#', '').trim();
+  if (hash && WIKI_DATA[hash]) {
+    showEntry(hash);
+  }
+})();
+</script>
+</body>
+</html>

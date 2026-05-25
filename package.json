@@ -1,0 +1,13 @@
+{
+  "name": "financial-system",
+  "version": "1.0.0",
+  "description": "Financial Knowledge Graph",
+  "private": true,
+  "scripts": {
+    "start": "node devserver.js",
+    "db:init": "node scripts/db-init.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.10.0"
+  }
+}
