@@ -842,6 +842,9 @@
     .v-sim-metric-val { font-size: 20px; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 4px; }
     .v-sim-metric-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .1em; }
     .v-sim-canvas { display: block; width: 100%; border-radius: 6px; background: rgba(0,0,0,.15); }
+    /* Plain-language formula note */
+    .v-formula-note { font-size: 11px; color: var(--text-2); text-align: center; padding: 4px 16px 8px; line-height: 1.65; }
+    .v-formula-note strong { color: var(--accent); }
 
     /* ── Pull Quote ────────────────────────────────────────── */
     .v-quote { border-left: 3px solid var(--accent); padding: 10px 16px; margin: 16px 0; background: rgba(56,189,248,.03); border-radius: 0 8px 8px 0; }
@@ -1955,10 +1958,10 @@ function wSimCompound(canvas, metrics, inp) {
 
   if (metrics) {
     metrics.innerHTML =
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(finalC) + '</div><div class="v-sim-metric-label">Compound Value</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(gain) + '</div><div class="v-sim-metric-label">Interest Earned</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + ((finalC/p).toFixed(1)) + '×</div><div class="v-sim-metric-label">Multiplier</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(finalS) + '</div><div class="v-sim-metric-label">Simple Interest</div></div>';
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(finalC) + '</div><div class="v-sim-metric-label">Your Total Money</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(gain) + '</div><div class="v-sim-metric-label">Profit Made</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + ((finalC/p).toFixed(1)) + '×</div><div class="v-sim-metric-label">Times Growth</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(finalS) + '</div><div class="v-sim-metric-label">Without Reinvesting</div></div>';
   }
   if (!canvas) return;
   var ctx = wSimCtx(canvas);
@@ -2015,9 +2018,9 @@ function wSimInflation(canvas, metrics, inp) {
 
   if (metrics) {
     metrics.innerHTML =
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(p) + '</div><div class="v-sim-metric-label">Starting Value</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f87171">' + _wSimFmt.rp(finalV) + '</div><div class="v-sim-metric-label">Real Value After ' + y + ' Yrs</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f87171">−' + _wSimFmt.rp(lost) + '</div><div class="v-sim-metric-label">Purchasing Power Lost</div></div>';
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(p) + '</div><div class="v-sim-metric-label">Your Money Today</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f87171">' + _wSimFmt.rp(finalV) + '</div><div class="v-sim-metric-label">What It Buys in '+y+' Yrs</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f87171">−' + _wSimFmt.rp(lost) + '</div><div class="v-sim-metric-label">Lost to Inflation</div></div>';
   }
   if (!canvas) return;
   var ctx = wSimCtx(canvas);
@@ -2057,9 +2060,9 @@ function wSimRule72(canvas, metrics, inp) {
 
   if (metrics) {
     metrics.innerHTML =
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + yrsPerDouble + '</div><div class="v-sim-metric-label">Years to Double</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(maxVal) + '</div><div class="v-sim-metric-label">After ' + doublings + ' Doublings</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + (Math.pow(2,doublings)) + '×</div><div class="v-sim-metric-label">Total Multiplier</div></div>';
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + yrsPerDouble + '</div><div class="v-sim-metric-label">Years to Double 💰</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(maxVal) + '</div><div class="v-sim-metric-label">Money After '+doublings+' Doublings</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + (Math.pow(2,doublings)) + '×</div><div class="v-sim-metric-label">Times Your Money</div></div>';
   }
   if (!canvas) return;
   var ctx = wSimCtx(canvas);
@@ -2106,10 +2109,10 @@ function wSimDCA(canvas, metrics, inp) {
 
   if (metrics) {
     metrics.innerHTML =
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(fv) + '</div><div class="v-sim-metric-label">Final Value</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(totalInvested) + '</div><div class="v-sim-metric-label">Total Invested</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + _wSimFmt.rp(gain) + '</div><div class="v-sim-metric-label">Gains</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + (fv/totalInvested).toFixed(1) + '×</div><div class="v-sim-metric-label">Return Multiple</div></div>';
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(fv) + '</div><div class="v-sim-metric-label">Total at End</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(totalInvested) + '</div><div class="v-sim-metric-label">You Put In</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + _wSimFmt.rp(gain) + '</div><div class="v-sim-metric-label">Profit Made</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + (fv/totalInvested).toFixed(1) + '×</div><div class="v-sim-metric-label">Times Your Money</div></div>';
   }
   if (!canvas) return;
   var ctx = wSimCtx(canvas);
@@ -2174,9 +2177,9 @@ function wSimLoan(canvas, metrics, inp) {
 
   if (metrics) {
     metrics.innerHTML =
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(monthly) + '</div><div class="v-sim-metric-label">Monthly Payment</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(totalPaid) + '</div><div class="v-sim-metric-label">Total Paid</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f87171">' + _wSimFmt.rp(totalInterest) + '</div><div class="v-sim-metric-label">Interest Cost</div></div>';
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(monthly) + '</div><div class="v-sim-metric-label">You Pay Per Month</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(totalPaid) + '</div><div class="v-sim-metric-label">Total You Pay</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f87171">' + _wSimFmt.rp(totalInterest) + '</div><div class="v-sim-metric-label">Extra Interest Cost</div></div>';
   }
   if (!canvas) return;
   var ctx = wSimCtx(canvas);
@@ -2272,10 +2275,10 @@ function wSimBondPrice(canvas, metrics, inp) {
     var chgUp = bondPx(baseYield+1) - curPx;
     var chgDn = bondPx(baseYield-1) - curPx;
     metrics.innerHTML =
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + curPx.toFixed(2) + '</div><div class="v-sim-metric-label">Bond Price</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:'+(curPx>=face?'#4ade80':'#f87171')+'">' + (curPx>=face?'+':'') + (curPx-face).toFixed(2) + '</div><div class="v-sim-metric-label">vs Par</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + modDur.toFixed(1) + ' yr</div><div class="v-sim-metric-label">Duration</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f87171">' + chgUp.toFixed(2) + '</div><div class="v-sim-metric-label">Price if +1%</div></div>';
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + curPx.toFixed(2) + '</div><div class="v-sim-metric-label">Price to Buy</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:'+(curPx>=face?'#4ade80':'#f87171')+'">' + (curPx>=face?'Above ':'Below ') + Math.abs(curPx-face).toFixed(2) + '</div><div class="v-sim-metric-label">'+(curPx>=face?'Above':'Below')+' Face Value</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + modDur.toFixed(1) + ' yrs</div><div class="v-sim-metric-label">Rate Sensitivity</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f87171">' + chgUp.toFixed(2) + '</div><div class="v-sim-metric-label">If Rates Rise 1%</div></div>';
   }
   if (!canvas) return;
   var ctx = wSimCtx(canvas);
@@ -2354,10 +2357,10 @@ function wSimPE(canvas, metrics, inp) {
 
   if (metrics) {
     metrics.innerHTML =
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + eps.toFixed(0) + '</div><div class="v-sim-metric-label">Current EPS</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + finalEPS.toFixed(0) + '</div><div class="v-sim-metric-label">EPS Y'+years+'</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + _wSimFmt.rp(curPrice) + '</div><div class="v-sim-metric-label">Price Now</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + _wSimFmt.rp(finalPrice) + '</div><div class="v-sim-metric-label">Price Y'+years+'</div></div>';
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + eps.toFixed(0) + '</div><div class="v-sim-metric-label">Earnings/Share Now</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + finalEPS.toFixed(0) + '</div><div class="v-sim-metric-label">Earnings in Yr '+years+'</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + _wSimFmt.rp(curPrice) + '</div><div class="v-sim-metric-label">Fair Price Today</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + _wSimFmt.rp(finalPrice) + '</div><div class="v-sim-metric-label">Fair Price Yr '+years+'</div></div>';
   }
   if (!canvas) return;
   var ctx = wSimCtx(canvas);
@@ -2411,10 +2414,10 @@ function wSimDivGrowth(canvas, metrics, inp) {
 
   if (metrics) {
     metrics.innerHTML =
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(principal) + '</div><div class="v-sim-metric-label">Invested</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + _wSimFmt.rp(cumDiv) + '</div><div class="v-sim-metric-label">Total Dividends</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(portArr[years]) + '</div><div class="v-sim-metric-label">Portfolio Value</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f59e0b">' + finalYield.toFixed(1) + '%</div><div class="v-sim-metric-label">Yield Y'+years+'</div></div>';
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(principal) + '</div><div class="v-sim-metric-label">You Put In</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + _wSimFmt.rp(cumDiv) + '</div><div class="v-sim-metric-label">Passive Income Earned</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(portArr[years]) + '</div><div class="v-sim-metric-label">Total Portfolio</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f59e0b">' + finalYield.toFixed(1) + '%</div><div class="v-sim-metric-label">Income Rate Yr '+years+'</div></div>';
   }
   if (!canvas) return;
   var ctx = wSimCtx(canvas);
@@ -2461,10 +2464,10 @@ function wSimROE(canvas, metrics, inp) {
 
   if (metrics) {
     metrics.innerHTML =
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#818cf8">' + roe.toFixed(1) + '%</div><div class="v-sim-metric-label">ROE</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#38bdf8">' + margin.toFixed(1) + '%</div><div class="v-sim-metric-label">Net Margin</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + turnover.toFixed(2) + '×</div><div class="v-sim-metric-label">Asset Turnover</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f59e0b">' + leverage.toFixed(1) + '×</div><div class="v-sim-metric-label">Leverage</div></div>';
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#818cf8">' + roe.toFixed(1) + '%</div><div class="v-sim-metric-label">Return on Equity</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#38bdf8">' + margin.toFixed(1) + '%</div><div class="v-sim-metric-label">Profit per Sale</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + turnover.toFixed(2) + '×</div><div class="v-sim-metric-label">Sales Efficiency</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#f59e0b">' + leverage.toFixed(1) + '×</div><div class="v-sim-metric-label">Debt Level</div></div>';
   }
   if (!canvas) return;
   var ctx = wSimCtx(canvas);
@@ -2553,10 +2556,10 @@ function wSimFXCarry(canvas, metrics, inp) {
     var finalGross = grossCarry[months];
     var finalFX    = fxAdjusted[months];
     metrics.innerHTML =
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:'+(spread>0?'#4ade80':'#f87171')+'">' + (spread>0?'+':'') + (spread*100).toFixed(2) + '%</div><div class="v-sim-metric-label">Rate Spread</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">+$' + finalGross.toFixed(0) + '</div><div class="v-sim-metric-label">Gross Carry Gain</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:'+(finalFX>=0?'#f59e0b':'#f87171')+'">' + (finalFX>=0?'+':'') + '$' + finalFX.toFixed(0) + '</div><div class="v-sim-metric-label">After FX Risk</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + spot.toLocaleString() + '</div><div class="v-sim-metric-label">Spot Rate</div></div>';
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:'+(spread>0?'#4ade80':'#f87171')+'">' + (spread>0?'+':'') + (spread*100).toFixed(2) + '%</div><div class="v-sim-metric-label">Interest Advantage</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">+$' + finalGross.toFixed(0) + '</div><div class="v-sim-metric-label">Interest Profit ($)</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:'+(finalFX>=0?'#f59e0b':'#f87171')+'">' + (finalFX>=0?'+':'') + '$' + finalFX.toFixed(0) + '</div><div class="v-sim-metric-label">After Currency Risk</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + spot.toLocaleString() + '</div><div class="v-sim-metric-label">Exchange Rate</div></div>';
   }
   if (!canvas) return;
   var ctx = wSimCtx(canvas);
@@ -2616,10 +2619,10 @@ function wSimSavings(canvas, metrics, inp) {
 
   if (metrics) {
     metrics.innerHTML =
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(totalInvested) + '</div><div class="v-sim-metric-label">Total Invested</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#818cf8">' + _wSimFmt.rp(port) + '</div><div class="v-sim-metric-label">Final Value</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + _wSimFmt.rp(gain) + '</div><div class="v-sim-metric-label">Interest Earned</div></div>' +
-      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + (port/totalInvested).toFixed(1) + '×</div><div class="v-sim-metric-label">Multiplier</div></div>';
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + _wSimFmt.rp(totalInvested) + '</div><div class="v-sim-metric-label">You Put In</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#818cf8">' + _wSimFmt.rp(port) + '</div><div class="v-sim-metric-label">Total at End</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val" style="color:#4ade80">' + _wSimFmt.rp(gain) + '</div><div class="v-sim-metric-label">Profit Made</div></div>' +
+      '<div class="v-sim-metric"><div class="v-sim-metric-val">' + (port/totalInvested).toFixed(1) + '×</div><div class="v-sim-metric-label">Times Growth</div></div>';
   }
   if (!canvas) return;
   var ctx = wSimCtx(canvas);
