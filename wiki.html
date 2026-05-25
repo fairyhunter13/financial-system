@@ -900,8 +900,7 @@
 
     /* ── Did-You-Know Box ──────────────────────────────────── */
     .v-dyk { background: linear-gradient(135deg, #1a1742, #0f1430); border: 1px solid rgba(129,140,248,.25); border-left: 4px solid #818cf8; border-radius: 0 12px 12px 0; padding: 14px 16px; margin: 16px 0; }
-    .v-dyk-header { font-size: 8px; font-weight: 800; color: #818cf8; text-transform: uppercase; letter-spacing: .14em; margin-bottom: 7px; display: flex; align-items: center; gap: 5px; }
-    .v-dyk-header::before { content: '💡'; font-size: 11px; }
+    .v-dyk-header { font-size: 8px; font-weight: 800; color: #818cf8; text-transform: uppercase; letter-spacing: .14em; margin-bottom: 7px; }
     .v-dyk-text { font-size: 13px; color: #c7d2fe; line-height: 1.65; }
 
     /* ── Myth vs Reality ───────────────────────────────────── */
@@ -910,10 +909,8 @@
     .v-myth-label { font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 5px; display: flex; align-items: center; gap: 5px; }
     .v-myth-text { font-size: 12px; line-height: 1.55; color: var(--text); }
     .v-myth-item.myth .v-myth-label { color: #f87171; }
-    .v-myth-item.myth .v-myth-label::before { content: '✗ '; }
     .v-myth-item.myth { border: 1px solid rgba(248,113,113,.22); background: linear-gradient(135deg, #1c0909, #150606); }
     .v-myth-item.reality .v-myth-label { color: #4ade80; }
-    .v-myth-item.reality .v-myth-label::before { content: '✓ '; }
     .v-myth-item.reality { border: 1px solid rgba(74,222,128,.22); background: linear-gradient(135deg, #081409, #060e06); }
 
     /* ── Responsive additions ──────────────────────────────── */
@@ -1855,7 +1852,7 @@ function wSimUpdate(el) {
   var lbl = el.previousElementSibling;
   if (lbl && lbl.tagName === 'LABEL') {
     var sp = lbl.querySelector('span');
-    if (sp) sp.textContent = el.dataset.fmt === 'pct' ? el.value + '%' : el.value;
+    if (sp) { var _fv=parseFloat(el.value),_ff=el.dataset.fmt; sp.textContent=_ff==='pct'?_fv.toFixed(1)+'%':_fv>10000?_wSimFmt.rp(_fv):el.value; }
   }
   // Find parent sim container and re-render
   var sim = el.closest('.v-sim');
@@ -1871,7 +1868,7 @@ function wSimInitAll() {
       var lbl = inp.previousElementSibling;
       if (lbl && lbl.tagName === 'LABEL') {
         var sp = lbl.querySelector('span');
-        if (sp) sp.textContent = inp.dataset.fmt === 'pct' ? inp.value + '%' : inp.value;
+        if (sp) { var _iv=parseFloat(inp.value),_if=inp.dataset.fmt; sp.textContent=_if==='pct'?_iv.toFixed(1)+'%':_iv>10000?_wSimFmt.rp(_iv):inp.value; }
       }
     });
     wSimRender(sim);
