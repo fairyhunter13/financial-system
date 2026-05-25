@@ -1841,8 +1841,9 @@ showEntry = function(id) {
     wSimInitAll();
     var art = document.getElementById('article-content');
     if (art) {
+      _wSimplifyTitles(art);  // rename jargon section titles to plain English
       _wEnhanceFormulas(art); // move plain-English note before formula, make formula collapsible
-      _wApplyJargon(art);
+      _wApplyJargon(art);     // hover tooltips on all financial jargon terms
     }
   }, 10);
 };
@@ -1864,6 +1865,52 @@ var _wSimFmt = {
   pct: function(n) { return n.toFixed(1) + '%'; },
   yr:  function(n) { return n.toFixed(1) + ' yrs'; }
 };
+
+/* ── Section title simplification map ────────────────────────
+   Jargon section titles → plain-English alternatives.
+   Applied at article-open time by _wSimplifyTitles().          */
+var _wSectionTitleMap = {
+  /* macro.js */
+  'Rate Spread: BI vs Fed (Carry Trade Opportunity)':
+      'When Indonesia Pays More Than the US (and Why That Attracts Investment)',
+  'Interest Rate Transmission Channels':
+      'How a Rate Change Ripples Through the Whole Economy',
+  'Monetary Policy Transmission Channels':
+      'How Interest Rate Decisions Affect Your Life Day-to-Day',
+  'QE\'s Transmission to Indonesia: The Channel Explained':
+      'How US Money-Printing Affects Indonesia',
+  'Monetary vs Fiscal Policy: Working Together and Against Each Other':
+      'Central Bank vs Government: Two Ways to Steer the Economy',
+  'Fiscal Multipliers — Effectiveness by Spending Type':
+      'How Much Economic Bang Does Each Rupiah of Government Spending Deliver?',
+  'Neutral Rate (r*)':
+      'The "Just Right" Interest Rate (Neither Too Hot Nor Too Cold)',
+  /* strategies.js */
+  'Fee Compounding: The Mathematical Case for Index Investing':
+      'How Tiny Annual Fees Silently Eat Half Your Retirement',
+  /* us.js */
+  'How the Fed Affects Indonesian Markets — Transmission Mechanism':
+      'Why When the Fed Sneezes, Indonesia Catches a Cold',
+  /* metrics.js */
+  'Shiller CAPE':
+      'Shiller CAPE (10-Year Average P/E — Smooths Out Boom-Bust Cycles)',
+  'Trailing vs Forward P/E':
+      'Trailing P/E (Past 12 Months) vs Forward P/E (Next 12 Months Forecast)',
+  'P/E Expansion':
+      'P/E Expansion (Investors Willing to Pay More Per Rupiah of Earnings)',
+  'P/E Compression':
+      'P/E Compression (Investors Paying Less Per Rupiah of Earnings)',
+  /* instruments.js */
+  'Equity vs Debt Instruments':
+      'Stocks (Ownership Slice) vs Bonds (IOU Loan) — What\'s the Difference?',
+};
+function _wSimplifyTitles(container) {
+  container.querySelectorAll('.v-section-title').forEach(function(el) {
+    var txt = el.textContent.trim();
+    var plain = _wSectionTitleMap[txt];
+    if (plain) el.textContent = plain;
+  });
+}
 
 /* ── Plain-English slider label map ───────────────────────────
    Technical terms → simple descriptions applied on sim init.
@@ -1985,6 +2032,61 @@ var _wJargon = {
   'Sharpe':        'Sharpe Ratio — profit earned per unit of risk. Higher = better risk-adjusted return',
   'CAPM':          'Capital Asset Pricing Model — formula to estimate expected return based on risk',
   'Duration':      'Bond Duration — measures how much the bond price changes when interest rates change',
+  /* Central bank & macro */
+  'FOMC':          'Federal Open Market Committee — the Fed\'s 12-person board that votes on US interest rates 8 times per year',
+  'QE':            'Quantitative Easing — the central bank creates new money to buy bonds, pushing cash into the economy to boost growth',
+  'QT':            'Quantitative Tightening — the central bank sells its bond holdings, draining cash from the economy to fight inflation',
+  'PCE':           'Personal Consumption Expenditures — the Fed\'s favourite inflation measure, tracking what Americans actually spend money on',
+  'VIX':           'Fear Index — measures how nervous US markets are. Under 15 = calm. 20–30 = worried. Above 40 = full panic',
+  /* Valuation metrics */
+  'PEG':           'Price-Earnings-Growth ratio — P/E divided by earnings growth rate. PEG below 1.0 = potentially undervalued for its growth',
+  'EBITDA':        'Earnings Before Interest, Tax, Depreciation & Amortization — operating profit before accounting deductions',
+  'CAPE':          'Cyclically Adjusted P/E (Shiller CAPE) — P/E averaged over 10 years of earnings to see through boom-bust cycles',
+  'TTM':           'Trailing Twelve Months — the last 12 months of actual reported data (opposite of "forward" = next 12 months forecast)',
+  'GAAP':          'Generally Accepted Accounting Principles — standardized accounting rules all public companies must follow',
+  /* Indexes & institutions */
+  'MSCI':          'Morgan Stanley Capital International — a company that creates stock indexes (e.g., MSCI Emerging Markets) that trillions of dollars in global funds track',
+  'LQ45':          'LQ45 — Indonesia\'s index of the 45 most actively traded stocks on IDX; like a smaller, more liquid version of IHSG',
+  'SPIVA':         'S&P Indices Versus Active — an annual study showing how many active fund managers fail to beat their benchmark index',
+  /* Currencies & FX */
+  'FX':            'Foreign Exchange — the global market where currencies are traded 24/7. "FX risk" = risk that exchange rates move against you',
+  'IDR':           'Indonesian Rupiah — Indonesia\'s currency (symbol: Rp). ISO code IDR',
+  'ATH':           'All-Time High — the highest price a stock or index has ever reached',
+  /* ETFs & funds */
+  'ETF':           'Exchange-Traded Fund — a basket of stocks/bonds you buy as one share. Like buying a slice of 500 companies at once',
+  'VOO':           'Vanguard S&P 500 ETF — tracks the 500 biggest US companies. One of the world\'s largest index funds. Fee: 0.03%/yr',
+  'SPY':           'SPDR S&P 500 ETF — oldest US index ETF, also tracking S&P 500. Fee: 0.0945%/yr',
+  'VTI':           'Vanguard Total Market ETF — tracks ALL US stocks, not just the top 500. More diversified than VOO/SPY',
+  'VXUS':          'Vanguard Total International ETF — all stocks outside the US in one fund',
+  'BND':           'Vanguard Total Bond Market ETF — all types of US bonds in one fund',
+  /* Strategies */
+  'SVB':           'Silicon Valley Bank — a major US bank that failed in March 2023 after taking huge losses on long-term bonds when rates rose',
+  'r*':            'Neutral Rate (r-star) — the "just right" interest rate: not too stimulative, not too restrictive. Below r* = stimulus; above r* = brake',
+  /* Risk & statistics terms */
+  'Drawdown':      'How far a price has fallen from its peak. 30% drawdown = current price is 30% below its all-time high',
+  'Tracking Error':'How closely a fund follows its index. Under 0.5%/yr = excellent. Higher = fund is drifting from the benchmark',
+  'Survivorship Bias': 'The illusion that funds look better than they are because failed funds disappear from statistics. Only winners survive to be measured',
+  'Idiosyncratic':  'Company-specific risk (fraud, bad management, product failure) — this type of risk can be reduced by owning many different stocks',
+  'Systematic':    'Market-wide risk (recession, rate hike, pandemic) that affects all stocks — this type of risk CANNOT be diversified away',
+  'Equity Premium':'The extra return you expect from stocks vs a risk-free investment. If stocks return 10% and ORI returns 6.9%, equity premium = 3.1%',
+  'Sortino':       'Sortino Ratio — like Sharpe but only counts bad volatility (downward swings) as risk. Higher = better downside-risk-adjusted return',
+  'Calmar':        'Calmar Ratio — annual return divided by maximum drawdown. High Calmar = good returns without big crashes',
+  /* Strategy terms */
+  'GARP':          'Growth At a Reasonable Price — buying fast-growing companies but only if the price is fair (PEG ratio under 1.5x)',
+  'Value Averaging': 'An advanced version of DCA: invest more when markets are down, less when markets are up. Mathematically better but harder to stick to',
+  'Rebalancing':   'Selling your winners and buying your laggards to restore your target mix. E.g., stocks grew to 70%? Sell some, buy bonds to get back to 60/40',
+  'Expense Ratio': 'The annual fee a fund charges, taken from your returns. 0.03% = Rp 3,000 on Rp 10 million. 2% = Rp 200,000 on Rp 10 million per year',
+  /* Accounting terms */
+  'Free Cash Flow': 'The actual cash a business generates after paying all its bills and investments. This is the money available to pay dividends or buy back shares',
+  'EBIT':          'Earnings Before Interest and Tax — operating profit before paying debt interest or government taxes',
+  'Net Income':    'The company\'s total profit after ALL expenses, taxes, and interest are paid. The "bottom line" of the income statement',
+  'Mark-to-Market': 'Valuing an asset at today\'s market price (not what you paid for it). A bond bought at 100 but worth 80 today = marked to 80',
+  'Write-down':    'Officially reducing the stated value of an asset on the books, recognizing that it\'s worth less than previously stated',
+  'Tapering':      'When a central bank gradually reduces the amount of bonds it buys each month. "Tapering" = slowing down, not stopping',
+  'Oversubscribed':'More people wanted to buy than there were shares/bonds available. Sign of strong demand',
+  'Underwriting':  'When a bank guarantees to buy all unsold shares in an IPO — the bank takes the risk if investors don\'t buy everything',
+  'Free-float':    'The percentage of a company\'s shares available for public trading. Excludes shares held by founders, government, or insiders',
+  'Lock-up':       'A period (usually 6 months after IPO) when insiders cannot sell their shares, preventing a sudden flood of shares hitting the market',
 };
 
 /* ── Formula enhancer ─────────────────────────────────────────
@@ -2017,7 +2119,23 @@ function _wEnhanceFormulas(container) {
 }
 
 function _wApplyJargon(container) {
-  var sel = '.v-fact-label,.v-fact-value,.v-tl-title,.v-news-headline,.v-ind-label,.v-ind-value';
+  var sel = [
+    '.v-fact-label', '.v-fact-value',
+    '.v-tl-title', '.v-tl-desc',
+    '.v-news-headline', '.v-news-detail',
+    '.v-ind-label', '.v-ind-value',
+    '.v-section-title',
+    '.v-ki-title', '.v-ki-text',
+    '.v-dyk-text',
+    '.v-myth-text',
+    '.v-analogy-tag', '.v-analogy-body',
+    '.v-case-title', '.v-case-body', '.v-case-outcome',
+    '.v-stat-box-label', '.v-stat-box-sub',
+    '.v-spec-label',
+    '.v-tip', '.v-warn',
+    '.v-intro',
+    '.v-formula-note'
+  ].join(',');
   container.querySelectorAll(sel).forEach(function(el) {
     if (el.querySelector('abbr')) return; // already processed
     Object.keys(_wJargon).forEach(function(term) {
