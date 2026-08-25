@@ -10,7 +10,7 @@ Cytoscape.js. Built for a beginner to navigate visually rather than read linearl
 node devserver.js        # or: npm start   — serves on :8080 with live reload
 ```
 
-`index.html` is the graph, `wiki.html` the article view. Both are static; the dev server exists
+`index.html` is the graph, `wiki.html` the article view. Both are static. The dev server exists
 for live reload and the optional SQLite-backed wiki API.
 
 ```bash

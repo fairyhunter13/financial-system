@@ -18,7 +18,7 @@
 | Observable Plot | Modern | Not graph-focused | ❌ Not suited |
 
 ### Layout Algorithm: fcose (Force-directed Compound Spring Embedder)
-- Loaded via CDN: `unpkg.com/cytoscape-fcose`
+- Loaded through CDN: `unpkg.com/cytoscape-fcose`
 - Best layout for knowledge graphs with 100–500 nodes
 - Produces organic, readable clusters by category
 
